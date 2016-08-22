@@ -1,7 +1,11 @@
 //*****************************************************************************
 //
 // MSP432 main.c template - Empty main
+<<<<<<< HEAD
 // Author: Kyle "small dick" Bradley
+=======
+// Author: Kyle "very big dick" Bradley
+>>>>>>> refs/remotes/origin/master
 //****************************************************************************
 
 #include "driverlib.h"
