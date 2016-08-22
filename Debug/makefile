@@ -10,7 +10,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-"./kyle_test.obj" \
+"./main.obj" \
 "./startup_msp432p401r_ccs.obj" \
 "./system_msp432p401r.obj" \
 "../msp432p401r.cmd" \
@@ -154,8 +154,8 @@ test453.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "kyle_test.d" "startup_msp432p401r_ccs.d" "system_msp432p401r.d" 
-	-$(RM) "kyle_test.obj" "startup_msp432p401r_ccs.obj" "system_msp432p401r.obj" 
+	-$(RM) "main.d" "startup_msp432p401r_ccs.d" "system_msp432p401r.d" 
+	-$(RM) "main.obj" "startup_msp432p401r_ccs.obj" "system_msp432p401r.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

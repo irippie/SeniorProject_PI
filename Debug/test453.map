@@ -1,7 +1,7 @@
 ******************************************************************************
                   TI ARM Linker PC v15.12.3                    
 ******************************************************************************
->> Linked Mon Aug 22 01:26:10 2016
+>> Linked Mon Aug 22 01:31:48 2016
 
 OUTPUT FILE NAME:   <test453.out>
 ENTRY POINT SYMBOL: "_c_int00"  address: 00000709
@@ -44,7 +44,7 @@ section   page    origin      length       input sections
 
 .text      0    000000e4    0000077e     
                   000000e4    0000032c     system_msp432p401r.obj (.text)
-                  00000410    00000104     kyle_test.obj (.text)
+                  00000410    00000104     main.obj (.text)
                   00000514    0000009c     rtsv7M4_T_le_v4SPD16_eabi.lib : memcpy_t2.obj (.text)
                   000005b0    0000007a                                   : memset_t2.obj (.text)
                   0000062a    00000002                                   : mpu_init.obj (.text)
@@ -63,7 +63,7 @@ section   page    origin      length       input sections
                   0000085e    00000004                                   : pre_init.obj (.text)
 
 .const     0    00000864    00000024     
-                  00000864    00000024     kyle_test.obj (.const:uartConfig)
+                  00000864    00000024     main.obj (.const:uartConfig)
 
 .cinit     0    00000888    0000002c     
                   00000888    0000001a     (.cinit..data.load) [load image, compression = rle]
@@ -89,7 +89,7 @@ MODULE SUMMARY
        ------                        ----   -------   -------
     .\
        system_msp432p401r.obj        812    0         8      
-       kyle_test.obj                 260    36        0      
+       main.obj                      260    36        0      
        startup_msp432p401r_ccs.obj   14     228       0      
     +--+-----------------------------+------+---------+---------+
        Total:                        1086   264       8      
