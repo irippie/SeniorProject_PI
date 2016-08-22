@@ -1,7 +1,7 @@
 //*****************************************************************************
 //
 // MSP432 main.c template - Empty main
-// Author: Kyle "big dick" Bradley
+// Author: Kyle "small dick" Bradley
 //****************************************************************************
 
 #include "driverlib.h"
