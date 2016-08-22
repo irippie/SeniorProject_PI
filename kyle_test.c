@@ -1,26 +1,23 @@
 //*****************************************************************************
 //
 // MSP432 main.c template - Empty main
-<<<<<<< HEAD
-// Author: Kyle "small dick" Bradley
-=======
-// Author: Kyle "very big dick" Bradley
->>>>>>> refs/remotes/origin/master
+// Author: Jesus Pintado and Kyle Bradley
+//
 //****************************************************************************
 
 #include "driverlib.h"
+
 #include <stdint.h>
-#include <stdbool.h>
+#include <string.h>
 
-
-
+void UART_transmit_data(const char* data);
 
 const eUSCI_UART_Config uartConfig =
 {
     EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-    78,                                     // BRDIV = 78
-    2,                                       // UCxBRF = 2
-    0,                                       // UCxBRS = 0
+    26,                                     // BRDIV = 26
+    0,                                       // UCxBRF = 0
+    111,                                       // UCxBRS = 111
     EUSCI_A_UART_NO_PARITY,                  // No Parity
     EUSCI_A_UART_LSB_FIRST,                  // MSB First
     EUSCI_A_UART_ONE_STOP_BIT,               // One stop bit
@@ -33,54 +30,40 @@ int main(void)
     /* Halting WDT  */
     MAP_WDT_A_holdTimer();
 
+    /* Enable floating point unit to set DCO frequency */
+    MAP_FPU_enableModule();
+
+    MAP_FlashCtl_setWaitState(FLASH_BANK0, 2);
+    MAP_FlashCtl_setWaitState(FLASH_BANK1, 2);
+
+    /* Increasing core voltage to handle higher frequencies */
+    MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
+
+    /* Setting DCO to 48MHz */
+    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
+
+    /* Setting P4.3 to output MCLK frequency */
+    MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
+
     /* Selecting P1.2 and P1.3 in UART mode */
-    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
-            GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
+	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
+			GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
 
-    /* Setting DCO to 12MHz */
-    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_12);
+	MAP_UART_initModule(EUSCI_A0_BASE, &uartConfig);
+	MAP_UART_enableModule(EUSCI_A0_BASE);
 
-    /* Configuring UART Module */
-    MAP_UART_initModule(EUSCI_A0_BASE, &uartConfig);
-
-    /* Enable UART module */
-    MAP_UART_enableModule(EUSCI_A0_BASE);
-//    MAP_UART_enableInterrupt(EUSCI_A0_BASE, EUSCI_A_UART_TRANSMIT_INTERRUPT);
-//    MAP_Interrupt_enableInterrupt(INT_EUSCIA0);
-//    MAP_Interrupt_enableSleepOnIsrExit();
-//
-//    MAP_Interrupt_enableMaster();
-
-
-    while(1){
-
-    	UART_send_string("test");
-
-    	MAP_UART_transmitData(EUSCI_A0_BASE, 0x0D);
-    	MAP_UART_transmitData(EUSCI_A0_BASE, 0x0A); //creates new line
-
-//    	UART_clear_screen();
-//    	MAP_PCM_gotoLPM0();
-    }
-}
-void EUSCIA0_IRQHandler(void)
-{
-    uint32_t status = MAP_UART_getEnabledInterruptStatus(EUSCI_A0_BASE);
-
-    MAP_UART_clearInterruptFlag(EUSCI_A0_BASE, status);
-
-    if(status & EUSCI_A_UART_RECEIVE_INTERRUPT_FLAG)
+    while(1)
     {
-        MAP_UART_transmitData(EUSCI_A0_BASE, 0x31);
+    	UART_transmit_data("test");
     }
+}
 
-}
-void UART_send_string(char* in){
+void UART_transmit_data(const char* data){
+
 	int i;
-	for(i = 0; i < strlen(in); i++){
-		MAP_UART_transmitData(EUSCI_A0_BASE, in[i]);
-	}
-}
-void UART_clear_screen(){
-	MAP_UART_transmitData(EUSCI_A0_BASE, 0x1b);
+	for(i = 0; i < strlen(data); i++){ MAP_UART_transmitData(EUSCI_A0_BASE, data[i]); }
+
+	MAP_UART_transmitData(EUSCI_A0_BASE, '\r');
+	MAP_UART_transmitData(EUSCI_A0_BASE, '\n');
+
 }
