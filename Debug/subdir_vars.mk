@@ -7,32 +7,32 @@ CMD_SRCS += \
 ../msp432p401r.cmd 
 
 C_SRCS += \
-../main.c \
+../gpio_int.c \
 ../startup_msp432p401r_ccs.c \
 ../system_msp432p401r.c 
 
 OBJS += \
-./main.obj \
+./gpio_int.obj \
 ./startup_msp432p401r_ccs.obj \
 ./system_msp432p401r.obj 
 
 C_DEPS += \
-./main.d \
+./gpio_int.d \
 ./startup_msp432p401r_ccs.d \
 ./system_msp432p401r.d 
 
 C_DEPS__QUOTED += \
-"main.d" \
+"gpio_int.d" \
 "startup_msp432p401r_ccs.d" \
 "system_msp432p401r.d" 
 
 OBJS__QUOTED += \
-"main.obj" \
+"gpio_int.obj" \
 "startup_msp432p401r_ccs.obj" \
 "system_msp432p401r.obj" 
 
 C_SRCS__QUOTED += \
-"../main.c" \
+"../gpio_int.c" \
 "../startup_msp432p401r_ccs.c" \
 "../system_msp432p401r.c" 
 
