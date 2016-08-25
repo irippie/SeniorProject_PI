@@ -15,9 +15,9 @@ void UART_transmit_data(const char* data);
 const eUSCI_UART_Config uartConfig =
 {
     EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-    26,                                     // BRDIV = 26
+    13,                                    	 // BRDIV = 13
     0,                                       // UCxBRF = 0
-    111,                                       // UCxBRS = 111
+    37,                                      // UCxBRS = 37
     EUSCI_A_UART_NO_PARITY,                  // No Parity
     EUSCI_A_UART_LSB_FIRST,                  // MSB First
     EUSCI_A_UART_ONE_STOP_BIT,               // One stop bit
@@ -39,8 +39,8 @@ int main(void)
     /* Increasing core voltage to handle higher frequencies */
     MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
 
-    /* Setting DCO to 48MHz */
-    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
+    /* Setting DCO to 24MHz */
+    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_24);
 
     /* Setting P4.3 to output MCLK frequency */
     MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
@@ -65,5 +65,4 @@ void UART_transmit_data(const char* data){
 
 	MAP_UART_transmitData(EUSCI_A0_BASE, '\r');
 	MAP_UART_transmitData(EUSCI_A0_BASE, '\n');
-
 }
