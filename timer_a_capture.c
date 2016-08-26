@@ -18,6 +18,9 @@
 #include <string.h>
 #include <stdbool.h>
 
+/******************************************************************************
+* In order to account for the motors not always going the same speed,
+******************************************************************************/
 uint32_t rising_VAL, falling_VAL;
 
 void UART_transmit_data(const char* data);
@@ -35,7 +38,6 @@ const eUSCI_UART_Config uartConfig =
     EUSCI_A_UART_OVERSAMPLING_BAUDRATE_GENERATION  // Oversampling
 };
 
-//TODO: figure out correct clock divide for 48 mhz
 const Timer_A_ContinuousModeConfig continuousModeConfig =
 {
         TIMER_A_CLOCKSOURCE_SMCLK,           // SMCLK Clock Source
@@ -96,7 +98,14 @@ int main(void){
 	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
 
 	while(1){
-		//nothing
+		//checking if overflow occurs
+		uint32_t overflow = MAP_Timer_A_getCaptureCompareInterruptStatus(TIMER_A0_BASE,
+				TIMER_A_CAPTURECOMPARE_REGISTER_1, TIMER_A_CAPTURE_OVERFLOW);
+
+		if(overflow){
+			UART_transmit_data("overflow occured");
+		}
+
 	}
 
 
@@ -127,6 +136,7 @@ void UART_transmit_data(const char* data){
 * create a timeout condition
 ******************************************************************************/
 void TA0_N_IRQHandler(void){
+	MAP_Timer_A_clearInterruptFlag(TIMER_A0_BASE);
 	MAP_Timer_A_clearCaptureCompareInterrupt(TIMER_A0_BASE,
 	            TIMER_A_CAPTURECOMPARE_REGISTER_1);
 	uint8_t pin_value = P2IN & 0x10;
