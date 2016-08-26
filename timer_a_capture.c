@@ -6,8 +6,8 @@
 //****************************************************************************
 //*****************************************************************************
 //	UART 115200 Baud rate
-// 	MSP432 set for 48 Mhz
-// TODO: 	PINS USED:
+// 	MSP432 set for 24 Mhz
+//  PINS USED: 1.2, 1.3, 2.4
 //
 
 //****************************************************************************
@@ -20,14 +20,14 @@
 
 uint32_t rising_VAL, falling_VAL;
 
-
 void UART_transmit_data(const char* data);
 
-const eUSCI_UART_Config uartConfig = {
+const eUSCI_UART_Config uartConfig =
+{
     EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-    26,                                     // BRDIV = 26
+    13,                                    	 // BRDIV = 13
     0,                                       // UCxBRF = 0
-    111,                                       // UCxBRS = 111
+    37,                                      // UCxBRS = 37
     EUSCI_A_UART_NO_PARITY,                  // No Parity
     EUSCI_A_UART_LSB_FIRST,                  // MSB First
     EUSCI_A_UART_ONE_STOP_BIT,               // One stop bit
@@ -39,7 +39,7 @@ const eUSCI_UART_Config uartConfig = {
 const Timer_A_ContinuousModeConfig continuousModeConfig =
 {
         TIMER_A_CLOCKSOURCE_SMCLK,           // SMCLK Clock Source
-        TIMER_A_CLOCKSOURCE_DIVIDER_48,       // SMCLK = 48 MHz/48 = 1MHz
+        TIMER_A_CLOCKSOURCE_DIVIDER_24,       // SMCLK = 48 MHz/48 = 1MHz
         TIMER_A_TAIE_INTERRUPT_DISABLE,      // Disable Timer ISR
         TIMER_A_SKIP_CLEAR                   // Skup Clear Counter
 };
@@ -68,8 +68,8 @@ int main(void){
     /* Increasing core voltage to handle higher frequencies */
     MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
 
-    /* Setting DCO to 48MHz */
-    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
+    /* Setting DCO to 24MHz */
+    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_24);
 
 
 
@@ -114,15 +114,17 @@ void UART_transmit_data(const char* data){
 	MAP_UART_transmitData(EUSCI_A0_BASE, '\n');
 
 }
+
 /******************************************************************************
+* Inside this ISR, it gets the time of the rising value, then the falling
+* value by reading the value of p2.4 inside the ISR
 *
-******************************************************************************/
-void init_TimerA(void){
-
-
-}
-/******************************************************************************
-*Inside this ISR we will figure out the time between pulses
+* TODO: clear the timer on the begining of a rising edge then latch
+* the value when the falling edge occurs to get the length of a positive
+* pulse. Each count corresponds to 1 us in real time since the timer has a
+* frequency of 1 MHz
+* TODO: output the length of the pulse via uart to terminal, as well as
+* create a timeout condition
 ******************************************************************************/
 void TA0_N_IRQHandler(void){
 	MAP_Timer_A_clearCaptureCompareInterrupt(TIMER_A0_BASE,
@@ -138,7 +140,7 @@ void TA0_N_IRQHandler(void){
 	}
 }
 
-void output_time_delta(uint32_t rising, uint32_t falling){
+void get_time_delta(uint32_t rising, uint32_t falling){
 
 
 }
