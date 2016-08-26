@@ -126,7 +126,7 @@ void PORT1_IRQHandler(void){
 	uint8_t pin_val = P1IN & 0x02;
 
 	if(status & GPIO_PIN1){ //if pin1 cause interrupt
-							//TODO: not needed
+							//TODO: not needed?
 		if(pin_val == 0){ // start of triggering
 			send_val = val2;
 			UART_transmit_data(send_val);

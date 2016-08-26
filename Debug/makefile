@@ -10,9 +10,9 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-"./gpio_int.obj" \
 "./startup_msp432p401r_ccs.obj" \
 "./system_msp432p401r.obj" \
+"./timer_a_capture.obj" \
 "../msp432p401r.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -154,8 +154,8 @@ PI.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "gpio_int.d" "startup_msp432p401r_ccs.d" "system_msp432p401r.d" 
-	-$(RM) "gpio_int.obj" "startup_msp432p401r_ccs.obj" "system_msp432p401r.obj" 
+	-$(RM) "startup_msp432p401r_ccs.d" "system_msp432p401r.d" "timer_a_capture.d" 
+	-$(RM) "startup_msp432p401r_ccs.obj" "system_msp432p401r.obj" "timer_a_capture.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

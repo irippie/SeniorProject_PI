@@ -7,33 +7,33 @@ CMD_SRCS += \
 ../msp432p401r.cmd 
 
 C_SRCS += \
-../gpio_int.c \
 ../startup_msp432p401r_ccs.c \
-../system_msp432p401r.c 
+../system_msp432p401r.c \
+../timer_a_capture.c 
 
 OBJS += \
-./gpio_int.obj \
 ./startup_msp432p401r_ccs.obj \
-./system_msp432p401r.obj 
+./system_msp432p401r.obj \
+./timer_a_capture.obj 
 
 C_DEPS += \
-./gpio_int.d \
 ./startup_msp432p401r_ccs.d \
-./system_msp432p401r.d 
+./system_msp432p401r.d \
+./timer_a_capture.d 
 
 C_DEPS__QUOTED += \
-"gpio_int.d" \
 "startup_msp432p401r_ccs.d" \
-"system_msp432p401r.d" 
+"system_msp432p401r.d" \
+"timer_a_capture.d" 
 
 OBJS__QUOTED += \
-"gpio_int.obj" \
 "startup_msp432p401r_ccs.obj" \
-"system_msp432p401r.obj" 
+"system_msp432p401r.obj" \
+"timer_a_capture.obj" 
 
 C_SRCS__QUOTED += \
-"../gpio_int.c" \
 "../startup_msp432p401r_ccs.c" \
-"../system_msp432p401r.c" 
+"../system_msp432p401r.c" \
+"../timer_a_capture.c" 
 
 

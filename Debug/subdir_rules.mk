@@ -3,13 +3,6 @@
 ################################################################################
 
 # Each subdirectory must supply rules for building sources it contributes
-gpio_int.obj: ../gpio_int.c $(GEN_OPTS) $(GEN_HDRS)
-	@echo 'Building file: $<'
-	@echo 'Invoking: MSP432 Compiler'
-	"D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --include_path="D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx" --include_path="D:/TI/ccsv6/ccs_base/arm/include" --include_path="D:/TI/ccsv6/ccs_base/arm/include/CMSIS" --include_path="D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include" --advice:power=all -g --gcc --define=__MSP432P401R__ --define=TARGET_IS_MSP432P4XX --define=ccs --diag_wrap=off --diag_warning=225 --display_error_number --abi=eabi --preproc_with_compile --preproc_dependency="gpio_int.d" $(GEN_OPTS__FLAG) "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
-
 startup_msp432p401r_ccs.obj: ../startup_msp432p401r_ccs.c $(GEN_OPTS) $(GEN_HDRS)
 	@echo 'Building file: $<'
 	@echo 'Invoking: MSP432 Compiler'
@@ -21,6 +14,13 @@ system_msp432p401r.obj: ../system_msp432p401r.c $(GEN_OPTS) $(GEN_HDRS)
 	@echo 'Building file: $<'
 	@echo 'Invoking: MSP432 Compiler'
 	"D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --include_path="D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx" --include_path="D:/TI/ccsv6/ccs_base/arm/include" --include_path="D:/TI/ccsv6/ccs_base/arm/include/CMSIS" --include_path="D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include" --advice:power=all -g --gcc --define=__MSP432P401R__ --define=TARGET_IS_MSP432P4XX --define=ccs --diag_wrap=off --diag_warning=225 --display_error_number --abi=eabi --preproc_with_compile --preproc_dependency="system_msp432p401r.d" $(GEN_OPTS__FLAG) "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+timer_a_capture.obj: ../timer_a_capture.c $(GEN_OPTS) $(GEN_HDRS)
+	@echo 'Building file: $<'
+	@echo 'Invoking: MSP432 Compiler'
+	"D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --include_path="D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx" --include_path="D:/TI/ccsv6/ccs_base/arm/include" --include_path="D:/TI/ccsv6/ccs_base/arm/include/CMSIS" --include_path="D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include" --advice:power=all -g --gcc --define=__MSP432P401R__ --define=TARGET_IS_MSP432P4XX --define=ccs --diag_wrap=off --diag_warning=225 --display_error_number --abi=eabi --preproc_with_compile --preproc_dependency="timer_a_capture.d" $(GEN_OPTS__FLAG) "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
