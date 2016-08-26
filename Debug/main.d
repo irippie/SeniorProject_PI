@@ -43,8 +43,6 @@ main.obj: C:/ti/msp/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/timer32
 main.obj: C:/ti/msp/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/timer_a.h
 main.obj: C:/ti/msp/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/uart.h
 main.obj: C:/ti/msp/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/wdt_a.h
-main.obj: C:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS/include/string.h
-main.obj: C:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS/include/linkage.h
 
 ../main.c: 
 C:/ti/msp/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/driverlib.h: 
@@ -89,5 +87,3 @@ C:/ti/msp/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/timer32.h:
 C:/ti/msp/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/timer_a.h: 
 C:/ti/msp/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/uart.h: 
 C:/ti/msp/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/wdt_a.h: 
-C:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS/include/string.h: 
-C:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS/include/linkage.h: 

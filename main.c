@@ -1,68 +1,79 @@
 //*****************************************************************************
 //
 // MSP432 main.c template - Empty main
-// Author: Jesus Pintado and Kyle Bradley
 //
 //****************************************************************************
 
 #include "driverlib.h"
-
 #include <stdint.h>
-#include <string.h>
 
-void UART_transmit_data(const char* data);
+#define SLAVE_ADDRESS 0x68
+#define GYRO_ZOUT_H 0x47
+#define GYRO_ZOUT_L 0x48
 
-const eUSCI_UART_Config uartConfig =
+/* I2C Master Configuration Parameter */
+const eUSCI_I2C_MasterConfig i2cConfig =
 {
-    EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-    13,                                    	 // BRDIV = 13
-    0,                                       // UCxBRF = 0
-    37,                                      // UCxBRS = 37
-    EUSCI_A_UART_NO_PARITY,                  // No Parity
-    EUSCI_A_UART_LSB_FIRST,                  // MSB First
-    EUSCI_A_UART_ONE_STOP_BIT,               // One stop bit
-    EUSCI_A_UART_MODE,                       // UART mode
-    EUSCI_A_UART_OVERSAMPLING_BAUDRATE_GENERATION  // Oversampling
+	EUSCI_B_I2C_CLOCKSOURCE_SMCLK, 		// SMCLK Clock Source
+	24000000,		 					// SMCLK = 24MHz
+	EUSCI_B_I2C_SET_DATA_RATE_400KBPS, 	// Desired I2C Clock of 400khz
+	0, 									// No byte counter threshold
+	EUSCI_B_I2C_NO_AUTO_STOP 			// No Autostop
 };
 
-int main(void)
+void main(void)
 {
-    /* Halting WDT  */
-    MAP_WDT_A_holdTimer();
 
-    /* Enable floating point unit to set DCO frequency */
-    MAP_FPU_enableModule();
+	/* Halting WDT  */
+	MAP_WDT_A_holdTimer();
 
-    MAP_FlashCtl_setWaitState(FLASH_BANK0, 2);
-    MAP_FlashCtl_setWaitState(FLASH_BANK1, 2);
+	/* Enable floating point unit to set DCO frequency */
+	MAP_FPU_enableModule();
 
-    /* Increasing core voltage to handle higher frequencies */
-    MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
+	MAP_FlashCtl_setWaitState(FLASH_BANK0, 2);
+	MAP_FlashCtl_setWaitState(FLASH_BANK1, 2);
 
-    /* Setting DCO to 24MHz */
-    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_24);
+	/* Increasing core voltage to handle higher frequencies */
+	MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
 
-    /* Setting P4.3 to output MCLK frequency */
-    MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
+	/* Setting DCO to 24MHz */
+	MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_24);
 
-    /* Selecting P1.2 and P1.3 in UART mode */
-	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
-			GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
+	/* Setting P4.3 to output MCLK frequency */
+	MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
 
-	MAP_UART_initModule(EUSCI_A0_BASE, &uartConfig);
-	MAP_UART_enableModule(EUSCI_A0_BASE);
+	/* Setting P1.6 & P1.7 as I2C */
+	MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P1,
+	            GPIO_PIN6 + GPIO_PIN7, GPIO_PRIMARY_MODULE_FUNCTION);
 
-    while(1)
-    {
-    	UART_transmit_data("test");
-    }
-}
+	/* Disabling I2C module to clear all I2C registers before initializing */
+	MAP_I2C_disableModule(EUSCI_B0_BASE);
 
-void UART_transmit_data(const char* data){
+	/* Initializing I2c Master to SMCLK at 400kbs with no autostop */
+	MAP_I2C_initMaster(EUSCI_B0_BASE, &i2cConfig);
 
-	int i;
-	for(i = 0; i < strlen(data); i++){ MAP_UART_transmitData(EUSCI_A0_BASE, data[i]); }
+	/* Specify slave address */
+	MAP_I2C_setSlaveAddress(EUSCI_B0_BASE, SLAVE_ADDRESS);
 
-	MAP_UART_transmitData(EUSCI_A0_BASE, '\r');
-	MAP_UART_transmitData(EUSCI_A0_BASE, '\n');
+	/* Set master to transmit mode */
+	MAP_I2C_setMode (EUSCI_B0_BASE, EUSCI_B_I2C_TRANSMIT_MODE);
+
+	/* Enable I2C Module to start operations */
+	MAP_I2C_enableModule(EUSCI_B0_BASE);
+
+//	MAP_I2C_disableInterrupt(EUSCI_B0_BASE);
+
+	while(1)
+	{
+		MAP_I2C_masterSendMultiByteStart(EUSCI_B0_BASE, GYRO_ZOUT_H);
+		MAP_I2C_setMode(EUSCI_B0_BASE, EUSCI_B_I2C_RECEIVE_MODE);
+		__delay_cycles(100000);
+		__delay_cycles(100000);
+		MAP_I2C_masterReceiveSingleByte(EUSCI_B0_BASE);
+		__delay_cycles(100000);
+		__delay_cycles(100000);
+		MAP_I2C_setMode (EUSCI_B0_BASE, EUSCI_B_I2C_TRANSMIT_MODE);
+		__delay_cycles(100000);
+		__delay_cycles(100000);
+	}
 }
