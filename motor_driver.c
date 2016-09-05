@@ -3,6 +3,7 @@
 // MSP432 main.c template - Empty main
 // Author: Jesus Pintado and Kyle Bradley
 //
+// TODO: MOVE BULLSHIT TO HEADER FILE
 //****************************************************************************
 
 #include "driverlib.h"
@@ -10,14 +11,24 @@
 #include <stdint.h>
 #include <string.h>
 
+void move_forward(void);
+void move_reverse(void);
 void UART_transmit_data(const char* data);
+void init_clock(void);
+void set_MOTOR_SPEED(volatile uint16_t * motor_forward, volatile uint16_t * motor_reverse,
+									uint8_t duty_cycle, uint8_t direction);
 
 #define TIMER_PERIOD 120
-#define DUTY_CYCLE1 60
-#define DUTY_CYCLE2 96
+#define DUTY_CYCLE1 0
+#define DUTY_CYCLE2 60
+#define FORWARD 1
+#define REVERSE 0
 
-static volatile uint16_t adc\
-_result;
+static volatile uint16_t adc_result;
+static volatile uint16_t * L_MOTOR_FORWARD = &TA1CCR1;
+static volatile uint16_t * L_MOTOR_REV = &TA1CCR2;
+static volatile uint16_t * R_MOTOR_FORWARD = &TA1CCR3;
+static volatile uint16_t * R_MOTOR_REV = &TA1CCR3;
 
 
 const eUSCI_UART_Config uartConfig =
@@ -59,9 +70,29 @@ const Timer_A_CompareModeConfig compareConfig_PWM2 =
         DUTY_CYCLE2                                 // 96 Duty Cycle
 };
 
+const Timer_A_CompareModeConfig compareConfig_PWM3 =
+{
+        TIMER_A_CAPTURECOMPARE_REGISTER_3,          // Use CCR2
+        TIMER_A_CAPTURECOMPARE_INTERRUPT_DISABLE,   // Disable CCR interrupt
+        TIMER_A_OUTPUTMODE_TOGGLE_SET,              // Toggle output but
+        DUTY_CYCLE2                                 // 96 Duty Cycle
+};
+
+const Timer_A_CompareModeConfig compareConfig_PWM4 =
+{
+        TIMER_A_CAPTURECOMPARE_REGISTER_4,          // Use CCR2
+        TIMER_A_CAPTURECOMPARE_INTERRUPT_DISABLE,   // Disable CCR interrupt
+        TIMER_A_OUTPUTMODE_TOGGLE_SET,              // Toggle output but
+        DUTY_CYCLE2                                 // 96 Duty Cycle
+};
+
 // This code is going to be operating off the TIMER_A1 Module
 // As I want to keep the A0 Module free for the encoders
 
+//*****************************************************************************
+// Things to keep in mind; setting CCR to 0 will have an always logic
+// high output. Setting them to period will keep them low.
+//****************************************************************************
 int main(void){
 
     /* Halting WDT  */
@@ -69,9 +100,10 @@ int main(void){
 
     init_clock(); //contains commands needed to initalize clock to 24 MHz
 
-    /* Setting 7.7 and 7.6 as the outputs for PWM */
-    MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P7,
-               GPIO_PIN6 + GPIO_PIN7, GPIO_PRIMARY_MODULE_FUNCTION);
+    /* Setting 7.4 - 7.7 as the outputs for PWM */
+    //7.7 == CCR1 ; 7.6 == CCR2; 7.5 == CCR3; 7.4 == CCR4
+    MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P7, GPIO_PIN5 +
+    		GPIO_PIN4+ GPIO_PIN6 + GPIO_PIN7, GPIO_PRIMARY_MODULE_FUNCTION);
 
     /* Configuring Timer_A1 for UpDown Mode and starting */
     MAP_Timer_A_configureUpDownMode(TIMER_A1_BASE, &upDownConfig);
@@ -88,14 +120,20 @@ int main(void){
 
 	/* Initialize compare registers to generate PWM1 */
 	MAP_Timer_A_initCompare(TIMER_A1_BASE, &compareConfig_PWM1);
-
-	/* Initialize compare registers to generate PWM2 */
 	MAP_Timer_A_initCompare(TIMER_A1_BASE, &compareConfig_PWM2);
+	MAP_Timer_A_initCompare(TIMER_A1_BASE, &compareConfig_PWM3);
+	MAP_Timer_A_initCompare(TIMER_A1_BASE, &compareConfig_PWM4);
 
-	init_adc();
+
+	//using button to move between different PWM
+	MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN1);
 
 	while(1){
-//    	UART_transmit_data("test");
+		uint8_t button = P1IN & 0x02;
+		if(button == 0x02)
+			move_forward();
+		else
+			move_reverse();
     }
 }
 
@@ -109,6 +147,26 @@ void UART_transmit_data(const char* data){
 	MAP_UART_transmitData(EUSCI_A0_BASE, '\r');
 	MAP_UART_transmitData(EUSCI_A0_BASE, '\n');
 
+}
+
+/* For now, direction will be 1 == foward, 0 == reverse */
+// created defines for direction
+void move_forward(){
+	set_MOTOR_SPEED(L_MOTOR_FORWARD, L_MOTOR_REV, 20, FORWARD);
+}
+void move_reverse(){
+	set_MOTOR_SPEED(L_MOTOR_FORWARD, L_MOTOR_REV, 20, REVERSE);
+}
+void set_MOTOR_SPEED(volatile uint16_t * motor_forward,volatile uint16_t * motor_reverse,
+									uint8_t duty_cycle, uint8_t direction){
+	if(direction == 1){ //foward
+		*motor_forward = duty_cycle;
+		*motor_reverse = TIMER_PERIOD; //setting to 0
+	}
+	else{ //reverse
+		*motor_reverse = duty_cycle;
+		*motor_forward = TIMER_PERIOD; //setting to 0
+	}
 }
 
 void init_clock(void){
