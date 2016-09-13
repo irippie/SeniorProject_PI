@@ -5,6 +5,11 @@
 //
 //****************************************************************************
 
+/*
+ * Uses pins 3.2 and 3.3 for Xbee communication via UART
+ * Router Xbee uses one 3.3V and GND pin on the MSP432
+ */
+
 #include "driverlib.h"
 
 #include <stdint.h>
@@ -33,9 +38,26 @@ int main(void)
 	init_clock();
 	init_uart();
 
+	// used to store the data received via UART
+	uint8_t received_data;
+
     while(1)
     {
-    	UART_transmit_data("testing");
+    	received_data = MAP_UART_receiveData( EUSCI_A2_BASE );
+
+    	switch(received_data){
+			case 'f':
+				UART_transmit_data("you told me to go faster");
+				break;
+			case 's':
+				UART_transmit_data("you told me to go slower");
+				break;
+    	}
+
+    	/* echoes user input back to terminal */
+    	// MAP_UART_transmitData( EUSCI_A2_BASE, (char)received_data );
+
+    	received_data = 0;
     }
 }
 
@@ -59,6 +81,7 @@ void init_uart(){
 	MAP_UART_initModule(EUSCI_A2_BASE, &uartConfig);
 	MAP_UART_enableModule(EUSCI_A2_BASE);
 
+	/* used for msp to terminal comm */
 //	/* Selecting P1.2 and P1.3 in UART mode */
 //	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
 //			GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
