@@ -87,49 +87,48 @@ int main(void)
 {
 	init_clock();
 	init_uart();
-//	init_timer();
+	init_timer();
 
 	// used to store the data received via UART
     uint8_t received_data;
+    uint8_t duty_tracker = 0;
 
     while(1)
     {
     	received_data = MAP_UART_receiveData( EUSCI_A2_BASE );
+    	switch(received_data){
 
-//    	uint8_t duty_tracker = 0;
-//    	switch(received_data){
-//
-//			case 'f':
-//				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
-//				UART_transmit_data("going forward");
-//				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
-//				move_forward(duty_tracker);
-//				break;
-//			case 'r':
-//				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
-//				UART_transmit_data("going reverse");
-//				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
-//				move_reverse(duty_tracker);
-//				break;
-//			case 'u':
-//				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
-//				UART_transmit_data("going faster");
-//				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
-//				if(duty_tracker == 100)
-//					duty_tracker = 100;
-//				else
-//					duty_tracker += 10;
-//				break;
-//			case 'd':
-//				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
-//				UART_transmit_data("going slower");
-//				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
-//				if(duty_tracker == 0)
-//					duty_tracker = 0;
-//				else
-//					duty_tracker -= 10;
-//				break;
-//    	}
+			case 'f':
+				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
+				UART_transmit_data("going forward");
+				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
+				move_forward(duty_tracker);
+				break;
+			case 'r':
+				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
+				UART_transmit_data("going reverse");
+				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
+				move_reverse(duty_tracker);
+				break;
+			case 'u':
+				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
+				UART_transmit_data("going faster");
+				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
+				if(duty_tracker == 100)
+					duty_tracker = 100;
+				else
+					duty_tracker += 10;
+				break;
+			case 'd':
+				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
+				UART_transmit_data("going slower");
+				MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
+				if(duty_tracker == 0)
+					duty_tracker = 0;
+				else
+					duty_tracker -= 10;
+				break;
+    	}
 
     	/* echoes user input back to terminal */
     	MAP_UART_transmitData( EUSCI_A2_BASE, 'x' );
