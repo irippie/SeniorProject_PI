@@ -39,7 +39,7 @@ int main(void)
 	init_uart();
 
 	// used to store the data received via UART
-	uint8_t received_data;
+    uint8_t received_data;
 
     while(1)
     {
@@ -58,6 +58,9 @@ int main(void)
     	// MAP_UART_transmitData( EUSCI_A2_BASE, (char)received_data );
 
     	received_data = 0;
+
+    	UART_transmit_data("testing");
+
     }
 }
 
