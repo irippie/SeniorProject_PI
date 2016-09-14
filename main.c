@@ -22,14 +22,14 @@ void UART_transmit_data(const char* data);
 
 const eUSCI_UART_Config uartConfig =
 {
-    EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-    13,                                     // BRDIV = 26
-    0,                                       // UCxBRF = 0
-    37,                                       // UCxBRS = 111
-    EUSCI_A_UART_NO_PARITY,                  // No Parity
-    EUSCI_A_UART_LSB_FIRST,                  // MSB First
-    EUSCI_A_UART_ONE_STOP_BIT,               // One stop bit
-    EUSCI_A_UART_MODE,                       // UART mode
+    EUSCI_A_UART_CLOCKSOURCE_SMCLK,     		   // SMCLK Clock Source
+    13,                                			   // BRDIV
+    0,                                       	   // UCxBRF
+    37,                                      	   // UCxBRS
+    EUSCI_A_UART_NO_PARITY,                  	   // No Parity
+    EUSCI_A_UART_LSB_FIRST,                  	   // MSB First
+    EUSCI_A_UART_ONE_STOP_BIT,              	   // One stop bit
+    EUSCI_A_UART_MODE,                             // UART mode
     EUSCI_A_UART_OVERSAMPLING_BAUDRATE_GENERATION  // Oversampling
 };
 
