@@ -6,11 +6,12 @@
 //****************************************************************************
 
 #include "driverlib.h"
-
+#include "motor_driver.h"
 #include <stdint.h>
 #include <string.h>
 
-void UART_transmit_data(const char* data);
+void init_clock();
+void UART_transmit_data(char*);
 
 const eUSCI_UART_Config uartConfig =
 {
@@ -30,6 +31,46 @@ int main(void)
     /* Halting WDT  */
     MAP_WDT_A_holdTimer();
 
+    /* Selecting P1.2 and P1.3 in UART mode */
+	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
+			GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
+
+	MAP_UART_initModule(EUSCI_A0_BASE, &uartConfig);
+	MAP_UART_enableModule(EUSCI_A0_BASE);
+
+
+
+	init_clock(); //contains commands needed to initalize clock to 24 MHz
+	init_timers();
+
+	//using button to move between different PWM
+	MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN1);
+	uint8_t duty_cycle = 40;
+	while(1){
+		uint8_t button = P1IN & 0x02;
+//		move_foward
+		if(button == 0x02)
+			move_forward(duty_cycle);
+		else{
+			move_forward(50);
+		}
+
+
+
+	}
+}
+
+void UART_transmit_data(char* data){
+
+	int i;
+	for(i = 0; i < strlen(data); i++){ MAP_UART_transmitData(EUSCI_A0_BASE, data[i]); }
+
+	MAP_UART_transmitData(EUSCI_A0_BASE, '\r');
+	MAP_UART_transmitData(EUSCI_A0_BASE, '\n');
+
+}
+void init_clock(void){
+
     /* Enable floating point unit to set DCO frequency */
     MAP_FPU_enableModule();
 
@@ -39,31 +80,11 @@ int main(void)
     /* Increasing core voltage to handle higher frequencies */
     MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
 
+
+
     /* Setting DCO to 48MHz */
     MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
 
     /* Setting P4.3 to output MCLK frequency */
     MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
-
-    /* Selecting P1.2 and P1.3 in UART mode */
-	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
-			GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
-
-	MAP_UART_initModule(EUSCI_A0_BASE, &uartConfig);
-	MAP_UART_enableModule(EUSCI_A0_BASE);
-
-    while(1)
-    {
-    	UART_transmit_data("test");
-    }
-}
-
-void UART_transmit_data(const char* data){
-
-	int i;
-	for(i = 0; i < strlen(data); i++){ MAP_UART_transmitData(EUSCI_A0_BASE, data[i]); }
-
-	MAP_UART_transmitData(EUSCI_A0_BASE, '\r');
-	MAP_UART_transmitData(EUSCI_A0_BASE, '\n');
-
 }

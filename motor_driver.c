@@ -10,44 +10,16 @@
 
 #include <stdint.h>
 #include <string.h>
-
-void move_forward(void);
-void move_reverse(void);
-void UART_transmit_data(const char* data);
-void init_clock(void);
-void set_MOTOR_SPEED(volatile uint16_t * motor_forward, volatile uint16_t * motor_reverse,
-									uint8_t duty_cycle, uint8_t direction);
-
-#define TIMER_PERIOD 120
-#define DUTY_CYCLE1 0
-#define DUTY_CYCLE2 60
-#define FORWARD 1
-#define REVERSE 0
-
-static volatile uint16_t adc_result;
-static volatile uint16_t * L_MOTOR_FORWARD = &TA1CCR1;
-static volatile uint16_t * L_MOTOR_REV = &TA1CCR2;
-static volatile uint16_t * R_MOTOR_FORWARD = &TA1CCR3;
-static volatile uint16_t * R_MOTOR_REV = &TA1CCR3;
+#include "motor_driver.h"
 
 
-const eUSCI_UART_Config uartConfig =
-{
-    EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-    26,                                     // BRDIV = 26
-    0,                                       // UCxBRF = 0
-    111,                                       // UCxBRS = 111
-    EUSCI_A_UART_NO_PARITY,                  // No Parity
-    EUSCI_A_UART_LSB_FIRST,                  // MSB First
-    EUSCI_A_UART_ONE_STOP_BIT,               // One stop bit
-    EUSCI_A_UART_MODE,                       // UART mode
-    EUSCI_A_UART_OVERSAMPLING_BAUDRATE_GENERATION  // Oversampling
-};
+
+
 
 const Timer_A_UpDownModeConfig upDownConfig =
 {
         TIMER_A_CLOCKSOURCE_SMCLK,              // SMCLK Clock SOurce
-        TIMER_A_CLOCKSOURCE_DIVIDER_4,          // SMCLK/1 = 3MHz
+        TIMER_A_CLOCKSOURCE_DIVIDER_24,          // SMCLK/4 = 3MHz
         TIMER_PERIOD,                           // 127 tick period
         TIMER_A_TAIE_INTERRUPT_DISABLE,         // Disable Timer interrupt
         TIMER_A_CCIE_CCR0_INTERRUPT_DISABLE,    // Disable CCR0 interrupt
@@ -59,7 +31,7 @@ const Timer_A_CompareModeConfig compareConfig_PWM1 =
         TIMER_A_CAPTURECOMPARE_REGISTER_1,          // Use CCR1
         TIMER_A_CAPTURECOMPARE_INTERRUPT_DISABLE,   // Disable CCR interrupt
         TIMER_A_OUTPUTMODE_TOGGLE_SET,              // Toggle output but
-        DUTY_CYCLE1                                 // 32 Duty Cycle
+        TIMER_PERIOD								// duty cycle initialized to 0
 };
 
 const Timer_A_CompareModeConfig compareConfig_PWM2 =
@@ -67,7 +39,7 @@ const Timer_A_CompareModeConfig compareConfig_PWM2 =
         TIMER_A_CAPTURECOMPARE_REGISTER_2,          // Use CCR2
         TIMER_A_CAPTURECOMPARE_INTERRUPT_DISABLE,   // Disable CCR interrupt
         TIMER_A_OUTPUTMODE_TOGGLE_SET,              // Toggle output but
-        DUTY_CYCLE2                                 // 96 Duty Cycle
+		TIMER_PERIOD								// duty cycle initialized to 0
 };
 
 const Timer_A_CompareModeConfig compareConfig_PWM3 =
@@ -75,7 +47,7 @@ const Timer_A_CompareModeConfig compareConfig_PWM3 =
         TIMER_A_CAPTURECOMPARE_REGISTER_3,          // Use CCR2
         TIMER_A_CAPTURECOMPARE_INTERRUPT_DISABLE,   // Disable CCR interrupt
         TIMER_A_OUTPUTMODE_TOGGLE_SET,              // Toggle output but
-        DUTY_CYCLE2                                 // 96 Duty Cycle
+		TIMER_PERIOD								// duty cycle initialized to 0
 };
 
 const Timer_A_CompareModeConfig compareConfig_PWM4 =
@@ -83,7 +55,7 @@ const Timer_A_CompareModeConfig compareConfig_PWM4 =
         TIMER_A_CAPTURECOMPARE_REGISTER_4,          // Use CCR2
         TIMER_A_CAPTURECOMPARE_INTERRUPT_DISABLE,   // Disable CCR interrupt
         TIMER_A_OUTPUTMODE_TOGGLE_SET,              // Toggle output but
-        DUTY_CYCLE2                                 // 96 Duty Cycle
+		TIMER_PERIOD								// duty cycle initialized to 0
 };
 
 // This code is going to be operating off the TIMER_A1 Module
@@ -93,12 +65,59 @@ const Timer_A_CompareModeConfig compareConfig_PWM4 =
 // Things to keep in mind; setting CCR to 0 will have an always logic
 // high output. Setting them to period will keep them low.
 //****************************************************************************
-int main(void){
+//int main(void){
+//
+//    /* Halting WDT  */
+//    MAP_WDT_A_holdTimer();
+//
+//    init_clock(); //contains commands needed to initalize clock to 24 MHz
+//    init_timers();
+//
+//	//using button to move between different PWM
+//	MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN1);
+//
+//	while(1){
+//		uint8_t button = P1IN & 0x02;
+//		if(button == 0x02)
+//			move_forward(50);
+//		else
+//			move_reverse(50);
+//    }
+//}
 
-    /* Halting WDT  */
-    MAP_WDT_A_holdTimer();
 
-    init_clock(); //contains commands needed to initalize clock to 24 MHz
+
+/* For now, direction will be 1 == foward, 0 == reverse */
+// created defines for direction
+void move_forward(uint8_t duty_cycle){
+
+	TA1CCR1 = speed_calc(duty_cycle);
+	TA1CCR2 = TIMER_PERIOD;
+	TA1CCR3 = speed_calc(duty_cycle);
+	TA1CCR4 = TIMER_PERIOD;
+}
+
+void move_reverse(uint8_t duty_cycle){
+
+	TA1CCR1 = TIMER_PERIOD;
+	TA1CCR2 = speed_calc(duty_cycle);
+	TA1CCR3 = TIMER_PERIOD;
+	TA1CCR4 = speed_calc(duty_cycle);
+}
+
+void stop_motors(){
+
+	TA1CCR1 = TIMER_PERIOD;
+	TA1CCR2 = TIMER_PERIOD;
+	TA1CCR3 = TIMER_PERIOD;
+	TA1CCR4 = TIMER_PERIOD;
+}
+
+uint8_t speed_calc(uint8_t duty_cycle){
+	return duty_cycle*-10+1000;
+}
+
+void init_timers(){
 
     /* Setting 7.4 - 7.7 as the outputs for PWM */
     //7.7 == CCR1 ; 7.6 == CCR2; 7.5 == CCR3; 7.4 == CCR4
@@ -107,15 +126,7 @@ int main(void){
 
     /* Configuring Timer_A1 for UpDown Mode and starting */
     MAP_Timer_A_configureUpDownMode(TIMER_A1_BASE, &upDownConfig);
-
     MAP_Timer_A_startCounter(TIMER_A1_BASE, TIMER_A_UPDOWN_MODE);
-
-    /* Selecting P1.2 and P1.3 in UART mode */
-//	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
-//			GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
-
-	MAP_UART_initModule(EUSCI_A1_BASE, &uartConfig);
-	MAP_UART_enableModule(EUSCI_A1_BASE);
 
 
 	/* Initialize compare registers to generate PWM1 */
@@ -125,38 +136,8 @@ int main(void){
 	MAP_Timer_A_initCompare(TIMER_A1_BASE, &compareConfig_PWM4);
 
 
-	//using button to move between different PWM
-	MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN1);
-
-	while(1){
-		uint8_t button = P1IN & 0x02;
-		if(button == 0x02)
-			move_forward();
-		else
-			move_reverse();
-    }
 }
 
-void UART_transmit_data(const char* data){
-
-	int i;
-	for(i = 0; i < strlen(data); i++){
-		MAP_UART_transmitData(EUSCI_A0_BASE, data[i]);
-	}
-
-	MAP_UART_transmitData(EUSCI_A0_BASE, '\r');
-	MAP_UART_transmitData(EUSCI_A0_BASE, '\n');
-
-}
-
-/* For now, direction will be 1 == foward, 0 == reverse */
-// created defines for direction
-void move_forward(){
-	set_MOTOR_SPEED(L_MOTOR_FORWARD, L_MOTOR_REV, 20, FORWARD);
-}
-void move_reverse(){
-	set_MOTOR_SPEED(L_MOTOR_FORWARD, L_MOTOR_REV, 20, REVERSE);
-}
 void set_MOTOR_SPEED(volatile uint16_t * motor_forward,volatile uint16_t * motor_reverse,
 									uint8_t duty_cycle, uint8_t direction){
 	if(direction == 1){ //foward
@@ -169,25 +150,7 @@ void set_MOTOR_SPEED(volatile uint16_t * motor_forward,volatile uint16_t * motor
 	}
 }
 
-void init_clock(void){
 
-    /* Enable floating point unit to set DCO frequency */
-    MAP_FPU_enableModule();
-
-    MAP_FlashCtl_setWaitState(FLASH_BANK0, 2);
-    MAP_FlashCtl_setWaitState(FLASH_BANK1, 2);
-
-    /* Increasing core voltage to handle higher frequencies */
-    MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
-
-
-
-    /* Setting DCO to 48MHz */
-    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
-
-    /* Setting P4.3 to output MCLK frequency */
-    MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
-}
 
 void init_adc(void){
 
@@ -217,22 +180,3 @@ void init_adc(void){
 
 }
 
-
-/* ADC Interrupt Handler. This handler is called whenever there is a conversion
- * that is finished for ADC_MEM0.
- */
-void ADC14_IRQHandler(void){
-    uint64_t status = MAP_ADC14_getEnabledInterruptStatus();
-    MAP_ADC14_clearInterruptFlag(status);
-
-    if (ADC_INT0 & status){
-        adc_result = MAP_ADC14_getResult(ADC_MEM0);
-        float temp = (float)adc_result /(float)0x3FFF;
-        float percent = temp * 100;
-        uint8_t dutycycle = percent;
-
-        TA1CCR1 = dutycycle;
-
-        MAP_ADC14_toggleConversionTrigger();
-    }
-}

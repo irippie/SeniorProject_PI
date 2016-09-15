@@ -45,6 +45,7 @@ motor_driver.obj: D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/uar
 motor_driver.obj: D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/wdt_a.h
 motor_driver.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/string.h
 motor_driver.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/linkage.h
+motor_driver.obj: ../motor_driver.h
 
 ../motor_driver.c: 
 D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/driverlib.h: 
@@ -91,3 +92,4 @@ D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/uart.h:
 D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/wdt_a.h: 
 D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/string.h: 
 D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/linkage.h: 
+../motor_driver.h: 

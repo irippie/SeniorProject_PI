@@ -10,8 +10,8 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-"./motor_driver.obj" \
 "./main.obj" \
+"./motor_driver.obj" \
 "./startup_msp432p401r_ccs.obj" \
 "./system_msp432p401r.obj" \
 "../msp432p401r.cmd" \
@@ -142,7 +142,7 @@ all: PI.out
 PI.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MSP432 Linker'
-	"D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me -Ooff --advice:power=all -g --gcc --define=__MSP432P401R__ --define=TARGET_IS_MSP432P4XX --define=ccs --diag_wrap=off --diag_warning=225 --display_error_number --abi=eabi -z -m"PI.map" --stack_size=512 --heap_size=1024 -i"D:/TI/ccsv6/ccs_base/arm/include" -i"D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/lib" -i"D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include" --reread_libs --diag_wrap=off --warn_sections --display_error_number --xml_link_info="PI_linkInfo.xml" --rom_model -o "PI.out" $(ORDERED_OBJS)
+	"D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me -O2 --advice:power=all --gcc --define=__MSP432P401R__ --define=TARGET_IS_MSP432P4XX --define=ccs --diag_wrap=off --diag_warning=225 --display_error_number --abi=eabi -z -m"PI.map" --stack_size=512 --heap_size=1024 -i"D:/TI/ccsv6/ccs_base/arm/include" -i"D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/lib" -i"D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include" --reread_libs --diag_wrap=off --warn_sections --display_error_number --xml_link_info="PI_linkInfo.xml" --rom_model -o "PI.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
