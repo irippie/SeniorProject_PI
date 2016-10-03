@@ -1,16 +1,7 @@
-//*****************************************************************************
-//
-// MSP432 main.c template - Empty main
-//
-//****************************************************************************
-
 #include "driverlib.h"
-//#include "MPU9250.h"
 #include <stdint.h>
 
 #define SLAVE_ADDRESS 0x68
-#define GYRO_ZOUT_H 0x47
-#define GYRO_ZOUT_L 0x48
 
 void init_i2c();
 void init_clock();
@@ -37,20 +28,12 @@ void main(void)
 	init_clock();
 	init_i2c();
 
-	uint8_t value;
 	uint8_t value1;
-	uint8_t value2;
-	uint8_t value3;
+	write_i2c(0x68,0x71);
 
-	value = read_i2c(0x0C);		// selt test control register
-	value1 = read_i2c(0x1B);	// gyroscope config register
-	write_i2c(0x0C,0x00);
-	write_i2c(0x1B,0x00);
-	value2 = read_i2c(0x0C);
-	value2 = read_i2c(0x1B);
 	while(1)
 	{
-		value1 = read_i2c(0x43);	// gyro_x_out_h register
+		value1 = read_i2c(0x68);
 	}
 }
 
@@ -99,6 +82,7 @@ void write_i2c(uint8_t register_addr, uint8_t register_data){
 }
 
 void init_i2c(){
+
 	MAP_GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN7);
 	MAP_GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN7);
 
