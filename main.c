@@ -1,5 +1,6 @@
 #include "driverlib.h"
 #include <stdint.h>
+#include "mpu9250.h"
 
 #define SLAVE_ADDRESS 0x68
 
@@ -7,6 +8,10 @@ void init_i2c();
 void init_clock();
 uint8_t read_i2c(uint8_t);
 void write_i2c(uint8_t, uint8_t);
+//TODO: need multi-byte read
+void read_multibyte_i2c(uint8_t, uint8_t, uint8_t*);
+
+
 
 /* I2C Master Configuration Parameter */
 const eUSCI_I2C_MasterConfig i2cConfig =
@@ -27,13 +32,15 @@ void main(void)
 
 	init_clock();
 	init_i2c();
-
+//	uint32_t temp;
 	uint8_t value1;
-	write_i2c(0x68,0x71);
+//	write_i2c(0x68,0x71);
+	uint8_t accel_data[6];
 
 	while(1)
 	{
-		value1 = read_i2c(0x68);
+		value1 = read_i2c(WHO_AM_I_MPU9250);
+		read_multibyte_i2c(ACCEL_XOUT_H, 6, accel_data);
 	}
 }
 
@@ -63,6 +70,14 @@ uint8_t read_i2c(uint8_t register_addr){
 	MAP_I2C_clearInterruptFlag(EUSCI_B0_BASE, EUSCI_B_I2C_TRANSMIT_INTERRUPT0);
 
 	return data;
+}
+
+//TODO: needs testing
+void read_multibyte_i2c(uint8_t register_addr, uint8_t num_bytes, uint8_t * data){
+	int i;
+	for(i = 0; i < num_bytes; i++){
+		data[i] = read_i2c(register_addr++);
+	}
 }
 
 void write_i2c(uint8_t register_addr, uint8_t register_data){
