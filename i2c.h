@@ -5,8 +5,8 @@
  *      Author: Kyle
  */
 
-#ifndef I2C_H_
-#define I2C_H_
+#ifndef _I2C_H_
+#define _I2C_H_
 
 
 
