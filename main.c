@@ -8,7 +8,7 @@ void init_i2c();
 void init_clock();
 uint8_t read_i2c(uint8_t);
 void write_i2c(uint8_t, uint8_t);
-//TODO: need multi-byte read
+//TODO: need multi-byte read????
 void read_multibyte_i2c(uint8_t, uint8_t, uint8_t*);
 
 
@@ -39,7 +39,8 @@ void main(void)
 
 	while(1)
 	{
-		value1 = read_i2c(WHO_AM_I_MPU9250);
+		//slight bit of example code to show functionality
+		value1 = read_i2c(WHO_AM_I_MPU9250); //I think
 		read_multibyte_i2c(ACCEL_XOUT_H, 6, accel_data);
 	}
 }
