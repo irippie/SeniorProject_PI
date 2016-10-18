@@ -11,7 +11,7 @@
 
 
 
-#define SLAVE_ADDRESS 0x68 //defining slave address as 0x68 for our MPU9250
+//#define SLAVE_ADDRESS 0x68 //defining slave address as 0x68 for our MPU9250
 const eUSCI_I2C_MasterConfig i2cConfig =
 {
 	EUSCI_B_I2C_CLOCKSOURCE_SMCLK, 		// SMCLK Clock Source
@@ -22,7 +22,9 @@ const eUSCI_I2C_MasterConfig i2cConfig =
 };
 
 
-uint8_t read_i2c(uint8_t register_addr){
+uint8_t read_i2c(uint8_t slave_addr, uint8_t register_addr){
+	/* Specify slave address */
+	MAP_I2C_setSlaveAddress(EUSCI_B0_BASE, slave_addr);
 
 	MAP_I2C_setMode (EUSCI_B0_BASE, EUSCI_B_I2C_TRANSMIT_MODE);
 
@@ -51,14 +53,16 @@ uint8_t read_i2c(uint8_t register_addr){
 }
 
 //TODO: needs testing
-void read_multibyte_i2c(uint8_t register_addr, uint8_t num_bytes, uint8_t * data){
+void read_multibyte_i2c(uint8_t slave_addr, uint8_t register_addr, uint8_t num_bytes, uint8_t * data){
 	int i;
 	for(i = 0; i < num_bytes; i++){
-		data[i] = read_i2c(register_addr++);
+		data[i] = read_i2c(slave_addr, register_addr++);
 	}
 }
 
-void write_i2c(uint8_t register_addr, uint8_t register_data){
+void write_i2c(uint8_t slave_addr, uint8_t register_addr, uint8_t register_data){
+	/* Specify slave address */
+	MAP_I2C_setSlaveAddress(EUSCI_B0_BASE, slave_addr);
 
 	MAP_I2C_setMode (EUSCI_B0_BASE, EUSCI_B_I2C_TRANSMIT_MODE);
 
@@ -92,7 +96,7 @@ void init_i2c(){
 //	EUSCI_B0_UCBCTLW0_SPI = 0x003B;
 
 	/* Specify slave address */
-	MAP_I2C_setSlaveAddress(EUSCI_B0_BASE, SLAVE_ADDRESS);
+	MAP_I2C_setSlaveAddress(EUSCI_B0_BASE, MPU9250_ADDRESS);
 
 	/* Set master to transmit mode */
 	MAP_I2C_setMode (EUSCI_B0_BASE, EUSCI_B_I2C_TRANSMIT_MODE);

@@ -7,28 +7,40 @@
 
 void init_clock();
 
-int main(void)
-{
+int main(void){ //changing to int main function to break if who_am_i doens't return valid value
+
 	/*TODO: Need to toggle pins here, sometimes SDA being pulled low on restart*/
 	//above could be occuring because of timing issue seen at 400 kbps?
 	//timing issues occur at 400 kbps but not 100 kbps
 	//transmit mode seems to handle what we need think it resets the bit we need
 
 	init_clock();
-	init_i2c();
-//	uint32_t temp;
-	uint8_t value1 = read_i2c(WHO_AM_I_MPU9250);
-//	write_i2c(0x68,0x71);
-//	uint8_t accel_data[6];
+	init_i2c(); //could possibily pull this into the mpu function set in order to abstract some functions away
+
 	mpu9250 my_MPU;
 	init_struct(&my_MPU);
-	if(value1 != 0x71){
-		return 1;
+
+	uint8_t who_is_it;
+
+//	uint8_t accel_data[6];
+	//slight bit of example code to show functionality
+	who_is_it = read_i2c(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
+	if(who_is_it != 0x71){
+		return 0;
 	}
-	while(1)
-	{
-		//slight bit of example code to show functionality
+	write_i2c(MPU9250_ADDRESS, 0x37, 0x02);
+	write_i2c(MPU9250_ADDRESS, 0x6A, 0x01);
+	who_is_it = read_i2c(0x0C, 0);
+	float test[3];
+//	calibrateMPU(&my_MPU);
+//	initMAG(&my_MPU, test);
+	while(1){
+
+
 		setAccelData(&my_MPU);
+		setGyroData(&my_MPU);
+//		uint8_t test = read_i2c(AK8963_ADDRESS, 0); //should be 0x48
+		setMagData(&my_MPU);
 
 	}
 }

@@ -5,10 +5,10 @@
 // RM-MPU-9250A-00, Rev. 1.4, 9/9/2013 for registers not listed in above
 // document; the MPU9250 and MPU9150 are virtually identical but the latter has
 // a different register map
-
+#define MPU9250_ADDRESS 	0x68
 //Magnetometer Registers
-#define AK8963_ADDRESS   0x0C
-#define WHO_AM_I_AK8963  0x00 // should return 0x48
+#define AK8963_ADDRESS   	0x0C
+#define WHO_AM_I_AK8963  	0x00 // should return 0x48
 #define INFO             0x01
 #define AK8963_ST1       0x02  // data ready status bit 0
 #define AK8963_XOUT_L    0x03  // data
@@ -222,6 +222,8 @@ void readGyroData(int16_t *);
 void setGyroData(mpu9250*);
 void readMagData(int16_t *);
 void setMagData(mpu9250*);
+void initMAG(mpu9250 *, float *);
+void calibrateMPU(mpu9250*);
 
 
 #endif
