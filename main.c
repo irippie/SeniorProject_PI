@@ -28,12 +28,13 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 	if(who_is_it != 0x71){
 		return 0;
 	}
-	write_i2c(MPU9250_ADDRESS, 0x37, 0x02);
-	write_i2c(MPU9250_ADDRESS, 0x6A, 0x01);
+
 	who_is_it = read_i2c(0x0C, 0);
 	float test[3];
-//	calibrateMPU(&my_MPU);
-//	initMAG(&my_MPU, test);
+	calibrateMPU(&my_MPU);
+	write_i2c(MPU9250_ADDRESS, 0x37, 0x02);
+	write_i2c(MPU9250_ADDRESS, 0x6A, 0x01);
+	initMAG(&my_MPU, test);
 	while(1){
 
 

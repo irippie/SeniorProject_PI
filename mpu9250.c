@@ -111,19 +111,16 @@ void setGyroData(mpu9250 *foo){
 void readMagData(int16_t *destination){
 	uint8_t rawData[7];
 	//read_multibyte_i2c()
-	if(read_i2c(AK8963_ADDRESS, AK8963_ST1) & 0x01){
-		// Read the six raw data and ST2 registers sequentially into data array
-		read_multibyte_i2c(AK8963_ADDRESS, AK8963_XOUT_L, 7, rawData);
-		uint8_t c = rawData[6]; // End data read by reading ST2 register
-		// Check if magnetic sensor overflow set, if not then report data
-		if(!(c & 0x08)){
-		  // Turn the MSB and LSB into a signed 16-bit value
-		  destination[0] = ((int16_t)rawData[1] << 8) | rawData[0];
-		  // Data stored as little Endian
-		  destination[1] = ((int16_t)rawData[3] << 8) | rawData[2];
-		  destination[2] = ((int16_t)rawData[5] << 8) | rawData[4];
-		}
-	}
+
+	read_multibyte_i2c(AK8963_ADDRESS, AK8963_XOUT_L, 7, rawData);
+
+
+	// Turn the MSB and LSB into a signed 16-bit value
+	destination[0] = ((int16_t)rawData[1] << 8) | rawData[0];
+	// Data stored as little Endian
+	destination[1] = ((int16_t)rawData[3] << 8) | rawData[2];
+	destination[2] = ((int16_t)rawData[5] << 8) | rawData[4];
+
 }
 void setMagData(mpu9250 *foo){
 	getMres(foo);
