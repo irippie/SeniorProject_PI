@@ -43,6 +43,10 @@ main.obj: D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/timer32.h
 main.obj: D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/timer_a.h
 main.obj: D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/uart.h
 main.obj: D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/wdt_a.h
+main.obj: ../quaternionFilters.h
+main.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/math.h
+main.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/linkage.h
+main.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/_defs.h
 main.obj: ../i2c.h
 main.obj: ../mpu9250.h
 
@@ -89,5 +93,9 @@ D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/timer32.h:
 D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/timer_a.h: 
 D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/uart.h: 
 D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/wdt_a.h: 
+../quaternionFilters.h: 
+D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/math.h: 
+D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/linkage.h: 
+D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/_defs.h: 
 ../i2c.h: 
 ../mpu9250.h: 

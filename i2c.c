@@ -35,6 +35,8 @@ uint8_t read_i2c(uint8_t slave_addr, uint8_t register_addr){
 	MAP_I2C_masterSendMultiByteNext(EUSCI_B0_BASE,register_addr);
 
 	/* Wait for tx to complete */
+
+
 	while(!(MAP_I2C_getInterruptStatus(EUSCI_B0_BASE, EUSCI_B_I2C_TRANSMIT_INTERRUPT0) &
 		EUSCI_B_I2C_TRANSMIT_INTERRUPT0));
 

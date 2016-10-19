@@ -8,10 +8,11 @@
 * All functionality done in original library is not guaranteed unless I need
 * it.
 */
+#include "driverlib.h"
 #include <stdint.h>
 #include "mpu9250.h"
 #include "i2c.h"
-
+#include "quaternionFilters.h"
 
 
 
@@ -21,6 +22,7 @@ void init_struct(mpu9250 * in){
 	in->Ascale = AFS_2G;
 	in->Mscale = MFS_16BITS;
 	in->Mmode 	= 2;	
+	in->lastUpdate = 0;
 }
 
 void getMres(mpu9250 * foo){
@@ -125,9 +127,12 @@ void readMagData(int16_t *destination){
 void setMagData(mpu9250 *foo){
 	getMres(foo);
 	readMagData(foo->magCount);
-	foo->mx = (float)foo->magCount[0]*foo->mRes;
-	foo->my = (float)foo->magCount[1]*foo->mRes;
-	foo->mz = (float)foo->magCount[2]*foo->mRes;
+//	foo->mx = (float)foo->magCount[0]*foo->mRes;
+//	foo->my = (float)foo->magCount[1]*foo->mRes;
+//	foo->mz = (float)foo->magCount[2]*foo->mRes;
+	foo->mx = -470.;
+	foo->my = -120.;
+	foo->mz = -125.;
 }
 
 void initMAG(mpu9250 *foo, float * destination){
@@ -150,9 +155,7 @@ void initMAG(mpu9250 *foo, float * destination){
 	__delay_cycles(1000);
 }
 
-void calibrateMPU(mpu9250 * foo){
-	float *gyroBias = foo->gyroBias;
-	float *accelBias = foo->accelBias;
+void calibrateMPU(float * gyroBias, float * accelBias){
 	uint8_t data[12]; // data array to hold accelerometer and gyro x, y, z, data
 	  uint16_t ii, packet_count, fifo_count;
 	  int32_t gyro_bias[3]  = {0, 0, 0}, accel_bias[3] = {0, 0, 0};
@@ -296,6 +299,22 @@ void calibrateMPU(mpu9250 * foo){
 	   accelBias[0] = (float)accel_bias[0]/(float)accelsensitivity;
 	   accelBias[1] = (float)accel_bias[1]/(float)accelsensitivity;
 	   accelBias[2] = (float)accel_bias[2]/(float)accelsensitivity;
+}
+
+void updateTime(mpu9250* foo){
+	uint16_t current_time = TA0R;
+	foo->Now = current_time;
+	if(foo->Now < foo->lastUpdate){ //overflow happened
+		foo->lastUpdate = 0xFFFF - foo->lastUpdate;
+		foo->deltat = ((foo->Now + foo->lastUpdate) / 1000000.0f);
+	}
+	else{
+		foo->deltat = ((foo->Now - foo->lastUpdate) / 1000000.0f);
+	}
+	foo->lastUpdate = foo->Now;
+	foo->sum += foo->deltat;
+	foo->sumCount++;
+
 }
 
 

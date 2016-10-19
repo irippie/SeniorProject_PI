@@ -223,7 +223,8 @@ void setGyroData(mpu9250*);
 void readMagData(int16_t *);
 void setMagData(mpu9250*);
 void initMAG(mpu9250 *, float *);
-void calibrateMPU(mpu9250*);
+void calibrateMPU(float*, float*);
+void updateTime(mpu9250*);
 
 
 #endif

@@ -1,11 +1,22 @@
 #include "driverlib.h"
 #include <stdint.h>
+#include "quaternionFilters.h"
+#include <math.h>
 #include "i2c.h"
+
 #include "mpu9250.h"
 
 
 
 void init_clock();
+
+const Timer_A_ContinuousModeConfig continuousModeConfig =
+{
+        TIMER_A_CLOCKSOURCE_SMCLK,           // SMCLK Clock Source
+        TIMER_A_CLOCKSOURCE_DIVIDER_24,       // SMCLK = 48 MHz/48 = 1MHz
+        TIMER_A_TAIE_INTERRUPT_DISABLE,      // Disable Timer ISR
+        TIMER_A_SKIP_CLEAR                   // Skup Clear Counter
+};
 
 int main(void){ //changing to int main function to break if who_am_i doens't return valid value
 
@@ -31,10 +42,19 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 
 	who_is_it = read_i2c(0x0C, 0);
 	float test[3];
-	calibrateMPU(&my_MPU);
+	calibrateMPU(&my_MPU.accelBias, &my_MPU.gyroBias);
 	write_i2c(MPU9250_ADDRESS, 0x37, 0x02);
 	write_i2c(MPU9250_ADDRESS, 0x6A, 0x01);
 	initMAG(&my_MPU, test);
+
+
+	/* Configuring Continuous Mode */
+	MAP_Timer_A_configureContinuousMode(TIMER_A0_BASE, &continuousModeConfig);
+
+	//init_TimerA();
+	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
+
+
 	while(1){
 
 
@@ -42,6 +62,27 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 		setGyroData(&my_MPU);
 //		uint8_t test = read_i2c(AK8963_ADDRESS, 0); //should be 0x48
 		setMagData(&my_MPU);
+
+//		uint16_t current_time = TA0R;
+		updateTime(&my_MPU);
+//		MahonyQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx,
+//								 my_MPU.gy, my_MPU.gz, my_MPU.my,
+//								 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
+		MadgwickQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx*DEG_TO_RAD,
+									 my_MPU.gy*DEG_TO_RAD, my_MPU.gz*DEG_TO_RAD, my_MPU.my,
+									 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
+		my_MPU.yaw   = atan2(2.0f * (*(getQ()+1) * *(getQ()+2) + *getQ() *
+		                    *(getQ()+3)), *getQ() * *getQ() + *(getQ()+1) * *(getQ()+1)
+		                    - *(getQ()+2) * *(getQ()+2) - *(getQ()+3) * *(getQ()+3));
+
+		my_MPU.roll  = atan2(2.0f * (*getQ() * *(getQ()+1) + *(getQ()+2) *
+					*(getQ()+3)), *getQ() * *getQ() - *(getQ()+1) * *(getQ()+1)
+					- *(getQ()+2) * *(getQ()+2) + *(getQ()+3) * *(getQ()+3));
+
+	    my_MPU.pitch = my_MPU.pitch*RAD_TO_DEG;
+
+	    my_MPU.sumCount = 0;
+	    my_MPU.sum = 0;
 
 	}
 }
