@@ -225,6 +225,6 @@ void setMagData(mpu9250*);
 void initMAG(mpu9250 *, float *);
 void calibrateMPU(float*, float*);
 void updateTime(mpu9250*);
-
+void selfTestMPU9250(float*);
 
 #endif

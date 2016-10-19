@@ -46,6 +46,9 @@ mpu9250.obj: D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/wdt_a.h
 mpu9250.obj: C:/Users/Kyle/git/SeniorProject_PI/mpu9250.h
 mpu9250.obj: C:/Users/Kyle/git/SeniorProject_PI/i2c.h
 mpu9250.obj: C:/Users/Kyle/git/SeniorProject_PI/quaternionFilters.h
+mpu9250.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/math.h
+mpu9250.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/linkage.h
+mpu9250.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/_defs.h
 
 C:/Users/Kyle/git/SeniorProject_PI/mpu9250.c: 
 D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/driverlib.h: 
@@ -93,3 +96,6 @@ D:/TI/MSP432Ware_3_40_00_25/driverlib/driverlib/MSP432P4xx/wdt_a.h:
 C:/Users/Kyle/git/SeniorProject_PI/mpu9250.h: 
 C:/Users/Kyle/git/SeniorProject_PI/i2c.h: 
 C:/Users/Kyle/git/SeniorProject_PI/quaternionFilters.h: 
+D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/math.h: 
+D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/linkage.h: 
+D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/_defs.h: 

@@ -8,6 +8,7 @@
 #ifndef _I2C_H_
 #define _I2C_H_
 
+//for future reference, 1.6 = blue(SDA), 1.7 = white(SCL)
 
 
 
