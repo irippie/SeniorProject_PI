@@ -1,7 +1,11 @@
 ******************************************************************************
                   TI ARM Linker PC v15.12.3                    
 ******************************************************************************
+<<<<<<< HEAD
 >> Linked Sun Oct 23 20:11:13 2016
+=======
+>> Linked Sun Aug 28 18:48:43 2016
+>>>>>>> refs/remotes/origin/master
 
 OUTPUT FILE NAME:   <PI.out>
 ENTRY POINT SYMBOL: "_c_int00"  address: 00002c4d
