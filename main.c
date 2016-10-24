@@ -13,7 +13,7 @@ void init_clock();
 const Timer_A_ContinuousModeConfig continuousModeConfig =
 {
         TIMER_A_CLOCKSOURCE_SMCLK,           // SMCLK Clock Source
-        TIMER_A_CLOCKSOURCE_DIVIDER_24,       // SMCLK = 48 MHz/48 = 1MHz
+        TIMER_A_CLOCKSOURCE_DIVIDER_24,       // SMCLK = 24 MHz/24 = 1MHz
         TIMER_A_TAIE_INTERRUPT_DISABLE,      // Disable Timer ISR
         TIMER_A_SKIP_CLEAR                   // Skup Clear Counter
 };
@@ -49,8 +49,14 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 //	write_i2c(MPU9250_ADDRESS, 0x37, 0x02);
 //	write_i2c(MPU9250_ADDRESS, 0x6A, 0x01);
 //	initMAG(&my_MPU, test);
+
+	// TODO: move this into i2c header file to initialize offsets
 	write_i2c(MPU9250_ADDRESS, ZA_OFFSET_H, 36);
 	write_i2c(MPU9250_ADDRESS, ZA_OFFSET_L, 221);
+	write_i2c(MPU9250_ADDRESS, XA_OFFSET_H, 21);
+	write_i2c(MPU9250_ADDRESS, XA_OFFSET_L, 117);
+	write_i2c(MPU9250_ADDRESS, YA_OFFSET_H, 26);
+	write_i2c(MPU9250_ADDRESS, YA_OFFSET_L, 114);
 
 	/* Configuring Continuous Mode */
 	MAP_Timer_A_configureContinuousMode(TIMER_A0_BASE, &continuousModeConfig);
@@ -59,50 +65,54 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
 
 	uint8_t tempZH, tempZL, tempXH, tempXL, tempYH, tempYL;
-	uint8_t more_temps[4];
+	uint8_t more_temps[6];
 	int16_t temp[3];
 	while(1){
 
-		if(read_i2c(MPU9250_ADDRESS, INT_STATUS) & 0x01){
-			tempZH = read_i2c(MPU9250_ADDRESS, ACCEL_ZOUT_H);
-			tempZL = read_i2c(MPU9250_ADDRESS, ACCEL_ZOUT_L);
-			temp[0] = ((int16_t)tempZH << 8) | tempZL;
-			tempXH = read_i2c(MPU9250_ADDRESS, ACCEL_XOUT_H);
-			tempXL = read_i2c(MPU9250_ADDRESS, ACCEL_XOUT_L);
-			temp[1] = ((int16_t)tempXH << 8) | tempXL;
-			tempYH = read_i2c(MPU9250_ADDRESS, ACCEL_YOUT_H);
-			tempYL = read_i2c(MPU9250_ADDRESS, ACCEL_YOUT_L);
-			temp[2] = ((int16_t)tempYH << 8) | tempYL;
-			more_temps[0] = read_i2c(MPU9250_ADDRESS, ZA_OFFSET_H);
-			more_temps[1] = read_i2c(MPU9250_ADDRESS, ZA_OFFSET_H);
-		}
-//		setAccelData(&my_MPU);
-//		setGyroData(&my_MPU);
-////		uint8_t test = read_i2c(AK8963_ADDRESS, 0); //should be 0x48
-//		setMagData(&my_MPU);
-//
-////		uint16_t current_time = TA0R;
-//		updateTime(&my_MPU);
-////		MahonyQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx,
-////								 my_MPU.gy, my_MPU.gz, my_MPU.my,
-////								 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
-//		MadgwickQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx*DEG_TO_RAD,
-//									 my_MPU.gy*DEG_TO_RAD, my_MPU.gz*DEG_TO_RAD, my_MPU.my,
-//									 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
+//		if(read_i2c(MPU9250_ADDRESS, INT_STATUS) & 0x01){
+//			tempZH = read_i2c(MPU9250_ADDRESS, ACCEL_ZOUT_H);
+//			tempZL = read_i2c(MPU9250_ADDRESS, ACCEL_ZOUT_L);
+//			temp[0] = ((int16_t)tempZH << 8) | tempZL;
+//			tempXH = read_i2c(MPU9250_ADDRESS, ACCEL_XOUT_H);
+//			tempXL = read_i2c(MPU9250_ADDRESS, ACCEL_XOUT_L);
+//			temp[1] = ((int16_t)tempXH << 8) | tempXL;
+//			tempYH = read_i2c(MPU9250_ADDRESS, ACCEL_YOUT_H);
+//			tempYL = read_i2c(MPU9250_ADDRESS, ACCEL_YOUT_L);
+//			temp[2] = ((int16_t)tempYH << 8) | tempYL;
+//			more_temps[0] = read_i2c(MPU9250_ADDRESS, XA_OFFSET_H);
+//			more_temps[1] = read_i2c(MPU9250_ADDRESS, XA_OFFSET_L);
+//			more_temps[2] = read_i2c(MPU9250_ADDRESS, YA_OFFSET_H);
+//			more_temps[3] = read_i2c(MPU9250_ADDRESS, YA_OFFSET_L);
+//			more_temps[4] = read_i2c(MPU9250_ADDRESS, ZA_OFFSET_H);
+//			more_temps[5] = read_i2c(MPU9250_ADDRESS, ZA_OFFSET_L);
+//		}
+		setAccelData(&my_MPU);
+		setGyroData(&my_MPU);
+//		uint8_t test = read_i2c(AK8963_ADDRESS, 0); //should be 0x48
+		setMagData(&my_MPU);
+
+//		uint16_t current_time = TA0R;
+		updateTime(&my_MPU);
+//		MahonyQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx,
+//								 my_MPU.gy, my_MPU.gz, my_MPU.my,
+//								 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
+		MadgwickQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx*DEG_TO_RAD,
+									 my_MPU.gy*DEG_TO_RAD, my_MPU.gz*DEG_TO_RAD, my_MPU.my,
+									 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
 //		my_MPU.yaw   = atan2(2.0f * (*(getQ()+1) * *(getQ()+2) + *getQ() *
 //		                    *(getQ()+3)), *getQ() * *getQ() + *(getQ()+1) * *(getQ()+1)
 //		                    - *(getQ()+2) * *(getQ()+2) - *(getQ()+3) * *(getQ()+3));
-//		my_MPU.pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ() *
-//		                    *(getQ()+2)));
+		my_MPU.pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ() *
+		                    *(getQ()+2)));
 //		my_MPU.roll  = atan2(2.0f * (*getQ() * *(getQ()+1) + *(getQ()+2) *
 //					*(getQ()+3)), *getQ() * *getQ() - *(getQ()+1) * *(getQ()+1)
 //					- *(getQ()+2) * *(getQ()+2) + *(getQ()+3) * *(getQ()+3));
-//
-//	    my_MPU.pitch = my_MPU.pitch*RAD_TO_DEG;
-////	    my_MPU.yaw   *= RAD_TO_DEG;
-////	    my_MPU.roll  *= RAD_TO_DEG;
-//	    my_MPU.sumCount = 0;
-//	    my_MPU.sum = 0;
+
+	    my_MPU.pitch = my_MPU.pitch*RAD_TO_DEG;
+//	    my_MPU.yaw   *= RAD_TO_DEG;
+//	    my_MPU.roll  *= RAD_TO_DEG;
+	    my_MPU.sumCount = 0;
+	    my_MPU.sum = 0;
 
 	}
 }
