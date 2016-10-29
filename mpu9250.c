@@ -1,12 +1,13 @@
-/*
-* Port done by Kyle Bradley.
-*
-* This c file and header file are a port of an arduino library 
-* for the MPU9250. This chip has has an accelerometer, gyroscope,
-* and magnetometer. The main functionality of  this library is going to
-* be using the quaternion data from the DMP in order to get the pitch.
-* All functionality done in original library is not guaranteed unless I need
-* it.
+/* Port done by Kyle Bradley in collaboration with Jesus Pintado
+ *
+ * I can be reached at kbradley09@gmail.com
+ *
+ * This c file and header file are a port of an arduino library
+ * for the MPU9250. This chip has has an accelerometer, gyroscope,
+ * and magnetometer. The main functionality of  this library is going to
+ * be using the quaternion data from the DMP in order to get the pitch.
+ * All functionality done in original library is not guaranteed unless I need
+ * it.
 */
 #include "driverlib.h"
 #include <stdint.h>
@@ -142,6 +143,12 @@ void setMagData(mpu9250 *foo){
 	foo->my = -120.;
 	foo->mz = -125.;
 }
+
+// My offsets were hardcoded after realizing that in the arduino port, the offsets
+// were being written to by either the self test function or calibration functions.
+// I read the values multiple times and saw they were not changing much and decided that
+// it was a simpler solution to just hardcode in the offsest values. My pitch angle was pretty much perfect
+// all things considered.
 
 void init_offsets(void){
 
