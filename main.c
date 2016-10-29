@@ -29,7 +29,7 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 	init_clock();
 	init_i2c(); //could possibily pull this into the mpu function set in order to abstract some functions away
 	init_uart();
-	UART_transmit_data("error: pitch out greater than 100");
+
 	mpu9250 my_MPU;
 	init_struct(&my_MPU);
 
@@ -111,31 +111,24 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 //					*(getQ()+3)), *getQ() * *getQ() - *(getQ()+1) * *(getQ()+1)
 //					- *(getQ()+2) * *(getQ()+2) + *(getQ()+3) * *(getQ()+3));
 
-	    my_MPU.pitch = my_MPU.pitch*RAD_TO_DEG;
+	    my_MPU.pitch = (my_MPU.pitch*RAD_TO_DEG) - 3;
 //	    my_MPU.yaw   *= RAD_TO_DEG;
 //	    my_MPU.roll  *= RAD_TO_DEG;
 	    my_MPU.sumCount = 0;
 	    my_MPU.sum = 0;
 
 	    if(my_MPU.pitch > 0){ //hopefully this works :)
-	    	move_forward(50);
+	    	move_forward(40);
 	    }
 	    else{
-	    	move_reverse(50);
+	    	move_reverse(40);
 	    }
 	    int pitch = (int)my_MPU.pitch;
-	    if(pitch > 100){
-	    	UART_transmit_data("error: pitch out greater than 100");
-	    }
-	    else{
-	    	char* pitch_out = my_itoa(pitch);
-	    	UART_transmit_data("pitch: ");
-	    	UART_transmit_data(pitch_out);
-	    }
-
-
-
-
+//	    pitch = 1;
+	    char pitch_out[4];
+	    my_itoa(&pitch_out, pitch);
+//		char* pitch_out = my_itoa(pitch);
+//		UART_transmit_data();
 	}
 }
 
@@ -161,19 +154,28 @@ void init_clock(){
 
 }
 
-char* my_itoa(int value){
-	char * ret_val;
+void my_itoa(char * string,int value){
+	int temp = value;
+	char c[3];
 	if(value < 0){
-		ret_val[0] = '-';
+		c[0] = '-';
+		temp = -temp;
 	}
 	else{
-		ret_val[0] = '+';
+		c[0] = '+';
 	}
-	ret_val[1] = (value/100) + 0x30;
-	value /= 10;
-	ret_val[2] = (value/10) + 0x30;
-	value /= 10;
-	ret_val[3] = (value) + 0x30;
+	c[1] = (temp/10) + 0x30;
+	temp = temp - (temp/10)*10;
+	c[2] = temp + 0x30;
 
-	return ret_val;
+	if(value > 0){
+		tx_data(c);
+	}
+	else{
+		tx_data(c);
+	}
+	if(value > 100){
+		tx_data("shits_fucked");
+	}
+
 }

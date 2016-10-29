@@ -18,7 +18,7 @@
 
 void move_reverse(uint8_t);
 void stop_motors();
-uint8_t speed_calc(uint8_t);
+uint32_t speed_calc(uint8_t);
 void init_timers();
 
 void move_forward(uint8_t);

@@ -11,7 +11,7 @@
 
 
 
-void UART_transmit_data(const char*);
+void tx_data(const char*);
 
 void init_uart();
 
