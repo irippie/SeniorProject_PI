@@ -113,7 +113,7 @@ void stop_motors(){
 	TA1CCR4 = TIMER_PERIOD;
 }
 
-uint8_t speed_calc(uint8_t duty_cycle){
+uint32_t speed_calc(uint8_t duty_cycle){
 	return duty_cycle*-10+1000;
 }
 

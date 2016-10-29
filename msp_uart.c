@@ -12,9 +12,9 @@
 
 const eUSCI_UART_Config uartConfig = {
     EUSCI_A_UART_CLOCKSOURCE_SMCLK,     		   // SMCLK Clock Source
-    13,                                			   // BRDIV
-    0,                                       	   // UCxBRF
-    37,                                      	   // UCxBRS
+    156,                                			   // BRDIV
+    4,                                       	   // UCxBRF
+    0,                                      	   // UCxBRS
     EUSCI_A_UART_NO_PARITY,                  	   // No Parity
     EUSCI_A_UART_LSB_FIRST,                  	   // MSB First
     EUSCI_A_UART_ONE_STOP_BIT,              	   // One stop bit
@@ -22,13 +22,14 @@ const eUSCI_UART_Config uartConfig = {
     EUSCI_A_UART_OVERSAMPLING_BAUDRATE_GENERATION  // Oversampling
 };
 
-void UART_transmit_data(const char* data){
+void tx_data(const char* data){
 
 	int i;
 	for(i = 0; i < strlen(data); i++){
 		MAP_UART_transmitData(EUSCI_A0_BASE, data[i]);
 	}
-	MAP_UART_transmitData(EUSCI_A0_BASE, '\r');
+	MAP_UART_transmitData(EUSCI_A0_BASE, 0xA);
+	MAP_UART_transmitData(EUSCI_A0_BASE, 0xD);
 
 }
 
