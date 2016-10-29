@@ -9,6 +9,7 @@ CMD_SRCS += \
 C_SRCS += \
 ../i2c.c \
 ../main.c \
+../motor_driver.c \
 ../mpu9250.c \
 ../quaternionFilters.c \
 ../startup_msp432p401r_ccs.c \
@@ -17,6 +18,7 @@ C_SRCS += \
 OBJS += \
 ./i2c.obj \
 ./main.obj \
+./motor_driver.obj \
 ./mpu9250.obj \
 ./quaternionFilters.obj \
 ./startup_msp432p401r_ccs.obj \
@@ -25,6 +27,7 @@ OBJS += \
 C_DEPS += \
 ./i2c.d \
 ./main.d \
+./motor_driver.d \
 ./mpu9250.d \
 ./quaternionFilters.d \
 ./startup_msp432p401r_ccs.d \
@@ -33,6 +36,7 @@ C_DEPS += \
 C_DEPS__QUOTED += \
 "i2c.d" \
 "main.d" \
+"motor_driver.d" \
 "mpu9250.d" \
 "quaternionFilters.d" \
 "startup_msp432p401r_ccs.d" \
@@ -41,6 +45,7 @@ C_DEPS__QUOTED += \
 OBJS__QUOTED += \
 "i2c.obj" \
 "main.obj" \
+"motor_driver.obj" \
 "mpu9250.obj" \
 "quaternionFilters.obj" \
 "startup_msp432p401r_ccs.obj" \
@@ -49,6 +54,7 @@ OBJS__QUOTED += \
 C_SRCS__QUOTED += \
 "../i2c.c" \
 "../main.c" \
+"../motor_driver.c" \
 "../mpu9250.c" \
 "../quaternionFilters.c" \
 "../startup_msp432p401r_ccs.c" \

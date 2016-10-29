@@ -3,6 +3,7 @@
 #include "quaternionFilters.h"
 #include <math.h>
 #include "i2c.h"
+#include "motor_driver.h"
 
 #include "mpu9250.h"
 
@@ -63,6 +64,7 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 
 	//init_TimerA();
 	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
+	init_timers(); //sets up timers for PWM output for motors
 
 	uint8_t tempZH, tempZL, tempXH, tempXL, tempYH, tempYL;
 	uint8_t more_temps[6];
@@ -113,6 +115,13 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 //	    my_MPU.roll  *= RAD_TO_DEG;
 	    my_MPU.sumCount = 0;
 	    my_MPU.sum = 0;
+
+	    if(my_MPU.pitch > 0){ //hopefully this works :)
+	    	move_forward(50);
+	    }
+	    else{
+	    	move_reverse(50);
+	    }
 
 	}
 }

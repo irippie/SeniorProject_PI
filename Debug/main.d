@@ -48,6 +48,7 @@ main.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/math.h
 main.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/linkage.h
 main.obj: D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/_defs.h
 main.obj: ../i2c.h
+main.obj: ../motor_driver.h
 main.obj: ../mpu9250.h
 
 ../main.c: 
@@ -98,4 +99,5 @@ D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/math.h:
 D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/linkage.h: 
 D:/TI/ccsv6/tools/compiler/arm_15.12.3.LTS/include/_defs.h: 
 ../i2c.h: 
+../motor_driver.h: 
 ../mpu9250.h: 
