@@ -39,11 +39,8 @@ int main(void)
     /* Increasing core voltage to handle higher frequencies */
     MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
 
-    /* Setting DCO to 48MHz */
+    /* Setting DCO to 24MHz */
     MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_24);
-
-    /* Setting P4.3 to output MCLK frequency */
-    MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
 
     /* Selecting P1.2 and P1.3 in UART mode */
 //	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
@@ -59,7 +56,7 @@ int main(void)
 
 	// UART VIA PINS 3.2 and 3.3
 	MAP_UART_initModule(EUSCI_A2_BASE, &uartConfig);
-	MAP_UART_enableModule(EUSCI_A3_BASE);
+	MAP_UART_enableModule(EUSCI_A2_BASE);
 
     while(1)
     {
@@ -78,5 +75,6 @@ void UART_transmit_data(const char* data){
 	for(i = 0; i < strlen(data); i++){ MAP_UART_transmitData(EUSCI_A2_BASE, data[i]); }
 
 	MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
+	MAP_UART_transmitData(EUSCI_A2_BASE, '\n');
 
 }
