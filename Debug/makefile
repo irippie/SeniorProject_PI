@@ -14,6 +14,7 @@ ORDERED_OBJS += \
 "./main.obj" \
 "./motor_driver.obj" \
 "./mpu9250.obj" \
+"./msp_uart.obj" \
 "./quaternionFilters.obj" \
 "./startup_msp432p401r_ccs.obj" \
 "./system_msp432p401r.obj" \
@@ -158,8 +159,8 @@ PI.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "i2c.d" "main.d" "motor_driver.d" "mpu9250.d" "quaternionFilters.d" "startup_msp432p401r_ccs.d" "system_msp432p401r.d" 
-	-$(RM) "i2c.obj" "main.obj" "motor_driver.obj" "mpu9250.obj" "quaternionFilters.obj" "startup_msp432p401r_ccs.obj" "system_msp432p401r.obj" 
+	-$(RM) "i2c.d" "main.d" "motor_driver.d" "mpu9250.d" "msp_uart.d" "quaternionFilters.d" "startup_msp432p401r_ccs.d" "system_msp432p401r.d" 
+	-$(RM) "i2c.obj" "main.obj" "motor_driver.obj" "mpu9250.obj" "msp_uart.obj" "quaternionFilters.obj" "startup_msp432p401r_ccs.obj" "system_msp432p401r.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

@@ -1,15 +1,15 @@
 #include "driverlib.h"
 #include <stdint.h>
+#include <stdlib.h>
 #include "quaternionFilters.h"
 #include <math.h>
 #include "i2c.h"
 #include "motor_driver.h"
+#include "msp_uart.h"
 
 #include "mpu9250.h"
 
 
-
-void init_clock();
 
 const Timer_A_ContinuousModeConfig continuousModeConfig =
 {
@@ -28,7 +28,8 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 
 	init_clock();
 	init_i2c(); //could possibily pull this into the mpu function set in order to abstract some functions away
-
+	init_uart();
+	UART_transmit_data("error: pitch out greater than 100");
 	mpu9250 my_MPU;
 	init_struct(&my_MPU);
 
@@ -122,6 +123,18 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 	    else{
 	    	move_reverse(50);
 	    }
+	    int pitch = (int)my_MPU.pitch;
+	    if(pitch > 100){
+	    	UART_transmit_data("error: pitch out greater than 100");
+	    }
+	    else{
+	    	char* pitch_out = my_itoa(pitch);
+	    	UART_transmit_data("pitch: ");
+	    	UART_transmit_data(pitch_out);
+	    }
+
+
+
 
 	}
 }
@@ -146,4 +159,21 @@ void init_clock(){
 	/* Setting P4.3 to output MCLK frequency */
 	MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
 
+}
+
+char* my_itoa(int value){
+	char * ret_val;
+	if(value < 0){
+		ret_val[0] = '-';
+	}
+	else{
+		ret_val[0] = '+';
+	}
+	ret_val[1] = (value/100) + 0x30;
+	value /= 10;
+	ret_val[2] = (value/10) + 0x30;
+	value /= 10;
+	ret_val[3] = (value) + 0x30;
+
+	return ret_val;
 }
