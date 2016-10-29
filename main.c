@@ -10,6 +10,15 @@
 #include "mpu9250.h"
 
 
+#define pitch_offset 3
+
+// @brief initliazes clock to 24 MHz
+void init_clock();
+/////////////////////////////////////////////////////////////////////
+// @brief sends out pitch data via UART
+// @param1 float pitch angle casted to int (-90, 90)
+/////////////////////////////////////////////////////////////////////
+void my_itoa(int);
 
 const Timer_A_ContinuousModeConfig continuousModeConfig =
 {
@@ -33,85 +42,35 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 	mpu9250 my_MPU;
 	init_struct(&my_MPU);
 
-	uint8_t who_is_it;
 
-//	uint8_t accel_data[6];
-	//slight bit of example code to show functionality
-	who_is_it = read_i2c(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
-	if(who_is_it != 0x71){
+
+
+
+	uint8_t who_is_it = read_i2c(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
+	if(who_is_it != 0x71){ //if who am i doesn't return 71, program exits
 		return 0;
 	}
-//	write_i2c(MPU9250_ADDRESS, 0x37, 0x02);
-//	write_i2c(MPU9250_ADDRESS, 0x6A, 0x01);
-//	who_is_it = read_i2c(0x0C, 0);
-//	float test[3];
-//	selfTestMPU9250(&my_MPU.SelfTest);
 
-//	calibrateMPU(&my_MPU.accelBias, &my_MPU.gyroBias);
-//	write_i2c(MPU9250_ADDRESS, 0x37, 0x02);
-//	write_i2c(MPU9250_ADDRESS, 0x6A, 0x01);
-//	initMAG(&my_MPU, test);
-
-	// TODO: move this into i2c header file to initialize offsets
-	write_i2c(MPU9250_ADDRESS, ZA_OFFSET_H, 36);
-	write_i2c(MPU9250_ADDRESS, ZA_OFFSET_L, 221);
-	write_i2c(MPU9250_ADDRESS, XA_OFFSET_H, 21);
-	write_i2c(MPU9250_ADDRESS, XA_OFFSET_L, 117);
-	write_i2c(MPU9250_ADDRESS, YA_OFFSET_H, 26);
-	write_i2c(MPU9250_ADDRESS, YA_OFFSET_L, 114);
 
 	/* Configuring Continuous Mode */
 	MAP_Timer_A_configureContinuousMode(TIMER_A0_BASE, &continuousModeConfig);
 
 	//init_TimerA();
 	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
-	init_timers(); //sets up timers for PWM output for motors
-
-	uint8_t tempZH, tempZL, tempXH, tempXL, tempYH, tempYL;
-	uint8_t more_temps[6];
-	int16_t temp[3];
+	init_PWM_timers(); //sets up timers for PWM output for motors
 	while(1){
-
-//		if(read_i2c(MPU9250_ADDRESS, INT_STATUS) & 0x01){
-//			tempZH = read_i2c(MPU9250_ADDRESS, ACCEL_ZOUT_H);
-//			tempZL = read_i2c(MPU9250_ADDRESS, ACCEL_ZOUT_L);
-//			temp[0] = ((int16_t)tempZH << 8) | tempZL;
-//			tempXH = read_i2c(MPU9250_ADDRESS, ACCEL_XOUT_H);
-//			tempXL = read_i2c(MPU9250_ADDRESS, ACCEL_XOUT_L);
-//			temp[1] = ((int16_t)tempXH << 8) | tempXL;
-//			tempYH = read_i2c(MPU9250_ADDRESS, ACCEL_YOUT_H);
-//			tempYL = read_i2c(MPU9250_ADDRESS, ACCEL_YOUT_L);
-//			temp[2] = ((int16_t)tempYH << 8) | tempYL;
-//			more_temps[0] = read_i2c(MPU9250_ADDRESS, XA_OFFSET_H);
-//			more_temps[1] = read_i2c(MPU9250_ADDRESS, XA_OFFSET_L);
-//			more_temps[2] = read_i2c(MPU9250_ADDRESS, YA_OFFSET_H);
-//			more_temps[3] = read_i2c(MPU9250_ADDRESS, YA_OFFSET_L);
-//			more_temps[4] = read_i2c(MPU9250_ADDRESS, ZA_OFFSET_H);
-//			more_temps[5] = read_i2c(MPU9250_ADDRESS, ZA_OFFSET_L);
-//		}
+		//updating MPU values and setting pitch angle
 		setAccelData(&my_MPU);
 		setGyroData(&my_MPU);
-//		uint8_t test = read_i2c(AK8963_ADDRESS, 0); //should be 0x48
 		setMagData(&my_MPU);
-
-//		uint16_t current_time = TA0R;
 		updateTime(&my_MPU);
-//		MahonyQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx,
-//								 my_MPU.gy, my_MPU.gz, my_MPU.my,
-//								 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
 		MadgwickQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx*DEG_TO_RAD,
 									 my_MPU.gy*DEG_TO_RAD, my_MPU.gz*DEG_TO_RAD, my_MPU.my,
 									 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
-//		my_MPU.yaw   = atan2(2.0f * (*(getQ()+1) * *(getQ()+2) + *getQ() *
-//		                    *(getQ()+3)), *getQ() * *getQ() + *(getQ()+1) * *(getQ()+1)
-//		                    - *(getQ()+2) * *(getQ()+2) - *(getQ()+3) * *(getQ()+3));
 		my_MPU.pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ() *
 		                    *(getQ()+2)));
-//		my_MPU.roll  = atan2(2.0f * (*getQ() * *(getQ()+1) + *(getQ()+2) *
-//					*(getQ()+3)), *getQ() * *getQ() - *(getQ()+1) * *(getQ()+1)
-//					- *(getQ()+2) * *(getQ()+2) + *(getQ()+3) * *(getQ()+3));
 
-	    my_MPU.pitch = (my_MPU.pitch*RAD_TO_DEG) - 3;
+	    my_MPU.pitch = (my_MPU.pitch*RAD_TO_DEG) - pitch_offset;
 //	    my_MPU.yaw   *= RAD_TO_DEG;
 //	    my_MPU.roll  *= RAD_TO_DEG;
 	    my_MPU.sumCount = 0;
@@ -124,11 +83,8 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 	    	move_reverse(40);
 	    }
 	    int pitch = (int)my_MPU.pitch;
-//	    pitch = 1;
-	    char pitch_out[4];
-	    my_itoa(&pitch_out, pitch);
-//		char* pitch_out = my_itoa(pitch);
-//		UART_transmit_data();
+	    //outputting current pitch via UART
+	    my_itoa(pitch);
 	}
 }
 
@@ -154,7 +110,7 @@ void init_clock(){
 
 }
 
-void my_itoa(char * string,int value){
+void my_itoa(int value){
 	int temp = value;
 	char c[3];
 	if(value < 0){

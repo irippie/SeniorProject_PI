@@ -117,7 +117,7 @@ uint32_t speed_calc(uint8_t duty_cycle){
 	return duty_cycle*-10+1000;
 }
 
-void init_timers(){
+void init_PWM_timers(){
 
     /* Setting 7.4 - 7.7 as the outputs for PWM */
     //7.7 == CCR1 ; 7.6 == CCR2; 7.5 == CCR3; 7.4 == CCR4

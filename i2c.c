@@ -12,6 +12,8 @@
 
 
 //#define SLAVE_ADDRESS 0x68 //defining slave address as 0x68 for our MPU9250
+
+//pretty sure we had to slow down the data rate because of issues
 const eUSCI_I2C_MasterConfig i2cConfig =
 {
 	EUSCI_B_I2C_CLOCKSOURCE_SMCLK, 		// SMCLK Clock Source
@@ -54,7 +56,9 @@ uint8_t read_i2c(uint8_t slave_addr, uint8_t register_addr){
 	return data;
 }
 
-//TODO: needs testing
+// TODO: needs testing
+// need to see what kind of speedup we'd get by using an actual multibyte read as opposed to reading
+// doing 6 reads in a row
 void read_multibyte_i2c(uint8_t slave_addr, uint8_t register_addr, uint8_t num_bytes, uint8_t * data){
 	int i;
 	for(i = 0; i < num_bytes; i++){
@@ -81,7 +85,7 @@ void write_i2c(uint8_t slave_addr, uint8_t register_addr, uint8_t register_data)
 }
 
 void init_i2c(){
-
+	//toggling pins because who knows, had issues with SDA getting pulled low
 	MAP_GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN7);
 	MAP_GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN7);
 
