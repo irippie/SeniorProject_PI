@@ -15,9 +15,9 @@ void UART_transmit_data(const char* data);
 const eUSCI_UART_Config uartConfig =
 {
     EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-    26,                                     // BRDIV = 26
-    0,                                       // UCxBRF = 0
-    111,                                       // UCxBRS = 111
+    156,                                     // BRDIV = 26
+    4,                                       // UCxBRF = 0
+    0,                                       // UCxBRS = 111
     EUSCI_A_UART_NO_PARITY,                  // No Parity
     EUSCI_A_UART_LSB_FIRST,                  // MSB First
     EUSCI_A_UART_ONE_STOP_BIT,               // One stop bit
@@ -40,17 +40,26 @@ int main(void)
     MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
 
     /* Setting DCO to 48MHz */
-    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
+    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_24);
 
     /* Setting P4.3 to output MCLK frequency */
     MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
 
     /* Selecting P1.2 and P1.3 in UART mode */
-	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
-			GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
+//	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
+//			GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
 
-	MAP_UART_initModule(EUSCI_A0_BASE, &uartConfig);
-	MAP_UART_enableModule(EUSCI_A0_BASE);
+    /* Selecting P3.2 and P3.3 in UART mode */
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P3,
+    		GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
+
+	// UART VIA USB
+//	MAP_UART_initModule(EUSCI_A0_BASE, &uartConfig);
+//	MAP_UART_enableModule(EUSCI_A0_BASE);
+
+	// UART VIA PINS 3.2 and 3.3
+	MAP_UART_initModule(EUSCI_A2_BASE, &uartConfig);
+	MAP_UART_enableModule(EUSCI_A3_BASE);
 
     while(1)
     {
@@ -61,9 +70,13 @@ int main(void)
 void UART_transmit_data(const char* data){
 
 	int i;
-	for(i = 0; i < strlen(data); i++){ MAP_UART_transmitData(EUSCI_A0_BASE, data[i]); }
+//	for(i = 0; i < strlen(data); i++){ MAP_UART_transmitData(EUSCI_A0_BASE, data[i]); }
+//
+//	MAP_UART_transmitData(EUSCI_A0_BASE, '\r');
+//	MAP_UART_transmitData(EUSCI_A0_BASE, '\n');
 
-	MAP_UART_transmitData(EUSCI_A0_BASE, '\r');
-	MAP_UART_transmitData(EUSCI_A0_BASE, '\n');
+	for(i = 0; i < strlen(data); i++){ MAP_UART_transmitData(EUSCI_A2_BASE, data[i]); }
+
+	MAP_UART_transmitData(EUSCI_A2_BASE, '\r');
 
 }
