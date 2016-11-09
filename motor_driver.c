@@ -25,7 +25,7 @@ const Timer_A_UpDownModeConfig upDownConfig =
         TIMER_A_CCIE_CCR0_INTERRUPT_DISABLE,    // Disable CCR0 interrupt
         TIMER_A_DO_CLEAR                        // Clear value
 };
-
+//PIN 7.7 TA1.1
 const Timer_A_CompareModeConfig compareConfig_PWM1 =
 {
         TIMER_A_CAPTURECOMPARE_REGISTER_1,          // Use CCR1
@@ -33,7 +33,7 @@ const Timer_A_CompareModeConfig compareConfig_PWM1 =
         TIMER_A_OUTPUTMODE_TOGGLE_SET,              // Toggle output but
         TIMER_PERIOD								// duty cycle initialized to 0
 };
-
+//PIN 7.6 TA1.2
 const Timer_A_CompareModeConfig compareConfig_PWM2 =
 {
         TIMER_A_CAPTURECOMPARE_REGISTER_2,          // Use CCR2
@@ -41,52 +41,22 @@ const Timer_A_CompareModeConfig compareConfig_PWM2 =
         TIMER_A_OUTPUTMODE_TOGGLE_SET,              // Toggle output but
 		TIMER_PERIOD								// duty cycle initialized to 0
 };
-
+//PIN 7.5 TA1.3
 const Timer_A_CompareModeConfig compareConfig_PWM3 =
 {
-        TIMER_A_CAPTURECOMPARE_REGISTER_3,          // Use CCR2
+        TIMER_A_CAPTURECOMPARE_REGISTER_3,          // Use CCR3
         TIMER_A_CAPTURECOMPARE_INTERRUPT_DISABLE,   // Disable CCR interrupt
         TIMER_A_OUTPUTMODE_TOGGLE_SET,              // Toggle output but
 		TIMER_PERIOD								// duty cycle initialized to 0
 };
-
+//PIN 7.4 TA1.4
 const Timer_A_CompareModeConfig compareConfig_PWM4 =
 {
-        TIMER_A_CAPTURECOMPARE_REGISTER_4,          // Use CCR2
+        TIMER_A_CAPTURECOMPARE_REGISTER_4,          // Use CCR4
         TIMER_A_CAPTURECOMPARE_INTERRUPT_DISABLE,   // Disable CCR interrupt
         TIMER_A_OUTPUTMODE_TOGGLE_SET,              // Toggle output but
 		TIMER_PERIOD								// duty cycle initialized to 0
 };
-
-// This code is going to be operating off the TIMER_A1 Module
-// As I want to keep the A0 Module free for the encoders
-
-//*****************************************************************************
-// Things to keep in mind; setting CCR to 0 will have an always logic
-// high output. Setting them to period will keep them low.
-//****************************************************************************
-//int main(void){
-//
-//    /* Halting WDT  */
-//    MAP_WDT_A_holdTimer();
-//
-//    init_clock(); //contains commands needed to initalize clock to 24 MHz
-//    init_timers();
-//
-//	//using button to move between different PWM
-//	MAP_GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN1);
-//
-//	while(1){
-//		uint8_t button = P1IN & 0x02;
-//		if(button == 0x02)
-//			move_forward(50);
-//		else
-//			move_reverse(50);
-//    }
-//}
-
-
-
 /* For now, direction will be 1 == foward, 0 == reverse */
 // created defines for direction
 void move_forward(uint8_t duty_cycle){
@@ -149,7 +119,6 @@ void set_MOTOR_SPEED(volatile uint16_t * motor_forward,volatile uint16_t * motor
 		*motor_forward = TIMER_PERIOD; //setting to 0
 	}
 }
-
 
 
 void init_adc(void){

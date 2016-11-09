@@ -38,13 +38,6 @@ void tx_data(const char* data){
 
 void init_uart(){
 
-	/* Selecting P3.2 and P3.3 in UART mode */
-//	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P3,
-//			GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
-//
-//	MAP_UART_initModule(EUSCI_A2_BASE, &uartConfig);
-//	MAP_UART_enableModule(EUSCI_A2_BASE);
-
 	/* used for msp to terminal comm */
 	/* Selecting P1.2 and P1.3 in UART mode */
 	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
@@ -52,5 +45,18 @@ void init_uart(){
 
 	MAP_UART_initModule(EUSCI_A0_BASE, &uartConfig);
 	MAP_UART_enableModule(EUSCI_A0_BASE);
+
+
+	/* BLUETOOTH USB */
+//	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P3,
+//			GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
+//
+//	MAP_UART_initModule(EUSCI_A2_BASE, &uartConfig);
+//	MAP_UART_enableModule(EUSCI_A2_BASE);
+
+
+
+
+
 
 }

@@ -20,6 +20,8 @@ void move_reverse(uint8_t);
 void stop_motors();
 uint32_t speed_calc(uint8_t);
 void init_PWM_timers();
+void init_encoder_capture();
+
 
 void move_forward(uint8_t);
 
@@ -28,6 +30,8 @@ static volatile uint16_t * L_MOTOR_REV = &TA1CCR2;
 static volatile uint16_t * R_MOTOR_FORWARD = &TA1CCR3;
 static volatile uint16_t * R_MOTOR_REV = &TA1CCR3;
 
+static int falling_VAL;
+static int rising_VAL;
 
 
 
