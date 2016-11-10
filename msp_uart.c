@@ -28,7 +28,7 @@ void tx_data(const char* data){
 	//transmitting each character of the screen via uart_a0
 	int i;
 	for(i = 0; i < strlen(data); i++){
-		MAP_UART_transmitData(EUSCI_A0_BASE, 't');
+		MAP_UART_transmitData(EUSCI_A0_BASE, data[i]);
 	}
 
 	//sending break line

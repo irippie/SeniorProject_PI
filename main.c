@@ -56,16 +56,16 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 
 	init_clock();
 
-	init_i2c(); //could possibily pull this into the mpu function set in order to abstract some functions away
+//	init_i2c(); //could possibily pull this into the mpu function set in order to abstract some functions away
 	init_uart();
 
-	mpu9250 my_MPU;
-	init_struct(&my_MPU);
-
-	uint8_t who_is_it = read_i2c(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
-	if(who_is_it != 0x71){ //if who am i doesn't return 71, program exits
-		return 0;
-	}
+//	mpu9250 my_MPU;
+//	init_struct(&my_MPU);
+//
+//	uint8_t who_is_it = read_i2c(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
+//	if(who_is_it != 0x71){ //if who am i doesn't return 71, program exits
+//		return 0;
+//	}
 
 
 	//following 3 lines are for input capture for enconders
@@ -78,38 +78,46 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 //	MAP_Timer_A_initCapture(TIMER_A0_BASE, &captureModeConfig);
 	/* Configuring Continuous Mode */
 
-	MAP_Timer_A_configureContinuousMode(TIMER_A0_BASE, &continuousModeConfig);
+//	MAP_Timer_A_configureContinuousMode(TIMER_A0_BASE, &continuousModeConfig);
+
+
 //	MAP_Interrupt_enableInterrupt(INT_TA0_N);
 //	MAP_Interrupt_enableMaster();
 	//init_TimerA();
-	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
-	init_PWM_timers(); //sets up timers for PWM output for motors
+
+
+//	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
+
+
+//	init_PWM_timers(); //sets up timers for PWM output for motors
 
 	while(1){
 
 		//updating MPU values and setting pitch angle
-		setAccelData(&my_MPU);
-		setGyroData(&my_MPU);
-		setMagData(&my_MPU);
-		updateTime(&my_MPU);
-		MadgwickQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx*DEG_TO_RAD,
-									 my_MPU.gy*DEG_TO_RAD, my_MPU.gz*DEG_TO_RAD, my_MPU.my,
-									 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
-		my_MPU.pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ() *
-		                    *(getQ()+2)));
+//		setAccelData(&my_MPU);
+//		setGyroData(&my_MPU);
+//		setMagData(&my_MPU);
+//		updateTime(&my_MPU);
+//		MadgwickQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx*DEG_TO_RAD,
+//									 my_MPU.gy*DEG_TO_RAD, my_MPU.gz*DEG_TO_RAD, my_MPU.my,
+//									 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
+//		my_MPU.pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ() *
+//		                    *(getQ()+2)));
+//
+//	    my_MPU.pitch = (my_MPU.pitch*RAD_TO_DEG);
+//	    my_MPU.sumCount = 0;
+//	    my_MPU.sum = 0;
+//
+//
+//	    int pitch = my_MPU.pitch + 5;
 
-	    my_MPU.pitch = (my_MPU.pitch*RAD_TO_DEG);
-	    my_MPU.sumCount = 0;
-	    my_MPU.sum = 0;
-
-
-	    int pitch = my_MPU.pitch + 5;
+		tx_data("kyle's gay");
 
 //	    pid_0(pitch);
 //	    move_forward(50);
 
 	    //outputting current pitch via UART
-	    my_itoa(pitch);
+//	    my_itoa(pitch);
 	}
 }
 
