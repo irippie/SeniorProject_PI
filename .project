@@ -24,16 +24,4 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>mpu9250.c</name>
-			<type>1</type>
-			<location>C:/Users/Kyle/git/SeniorProject_PI/mpu9250.c</location>
-		</link>
-		<link>
-			<name>mpu9250.h</name>
-			<type>1</type>
-			<location>C:/Users/Kyle/git/SeniorProject_PI/mpu9250.h</location>
-		</link>
-	</linkedResources>
 </projectDescription>
