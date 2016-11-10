@@ -27,7 +27,7 @@ void tx_data(const char* data){
 
 	//transmitting each character of the screen via uart_a0
 	int i;
-	for(i = 0; i < strlen(data); i++){
+	for(i = 0; i < 3; i++){
 		MAP_UART_transmitData(EUSCI_A2_BASE, data[i]);
 	}
 
@@ -37,8 +37,8 @@ void tx_data(const char* data){
 //	MAP_UART_transmitData(EUSCI_A0_BASE, 0xD);
 
 	// BT UART
-//	MAP_UART_transmitData(EUSCI_A2_BASE, 0xA);
-//	MAP_UART_transmitData(EUSCI_A2_BASE, 0xD);
+	MAP_UART_transmitData(EUSCI_A2_BASE, 0xA);
+	MAP_UART_transmitData(EUSCI_A2_BASE, 0xD);
 
 }
 

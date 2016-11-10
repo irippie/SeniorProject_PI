@@ -89,7 +89,26 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
 
 
-//	init_PWM_timers(); //sets up timers for PWM output for motors
+	init_PWM_timers(); //sets up timers for PWM output for motors
+
+	int i;
+	for(i = 0; i < 1000; i++){
+
+		setAccelData(&my_MPU);
+		setGyroData(&my_MPU);
+		setMagData(&my_MPU);
+		updateTime(&my_MPU);
+		MadgwickQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx*DEG_TO_RAD,
+									 my_MPU.gy*DEG_TO_RAD, my_MPU.gz*DEG_TO_RAD, my_MPU.my,
+									 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
+		my_MPU.pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ() *
+							*(getQ()+2)));
+
+		my_MPU.pitch = (my_MPU.pitch*RAD_TO_DEG);
+		my_MPU.sumCount = 0;
+		my_MPU.sum = 0;
+
+	}
 
 	while(1){
 
@@ -112,8 +131,7 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 	    int pitch = my_MPU.pitch + 2;
 
 
-//	    pid_0(pitch);
-//	    move_forward(50);
+	    pid_0(pitch);
 
 	    //outputting current pitch via UART
 	    my_itoa(pitch);
@@ -122,6 +140,7 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 
 float last_error = 0;
 void pid_0(int pitch){
+
 	float error = 0 - pitch;
 	float p_term = Kp_motor*error;
 	i_term += Ki_motor*(float)error;
@@ -143,22 +162,8 @@ void pid_0(int pitch){
 	else if(d_term < -100){
 		d_term = -100;
 	}
-//	if(p_term < 0){
-//		if(p_term <= -100){
-//			p_term = 100;
-//		}
-//		else{
-//			p_term *= -1;
-//		}
-////		move_forward(p_term);
-//	}
-//	else{
-//		if(p_term > 100){
-//			p_term = 100;
-//		}
-////		move_reverse(p_term);
-//
-//	}
+
+
 	float output = (float)p_term + i_term + d_term;
 	int motor_set = (int)output;
 	if(motor_set < 0){
@@ -175,8 +180,6 @@ void pid_0(int pitch){
 			motor_set = 100;
 		}
 		move_forward(motor_set);
-
-
 	}
 
 }
