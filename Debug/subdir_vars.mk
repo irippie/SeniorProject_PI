@@ -10,7 +10,7 @@ C_SRCS += \
 ../i2c.c \
 ../main.c \
 ../motor_driver.c \
-../mpu9250.c \
+C:/Users/Kyle/git/SeniorProject_PI/mpu9250.c \
 ../msp_uart.c \
 ../pid.c \
 ../quaternionFilters.c \
@@ -63,8 +63,9 @@ OBJS__QUOTED += \
 
 C_SRCS__QUOTED += \
 "../i2c.c" \
+"../main.c" \
 "../motor_driver.c" \
-"../mpu9250.c" \
+"C:/Users/Kyle/git/SeniorProject_PI/mpu9250.c" \
 "../msp_uart.c" \
 "../pid.c" \
 "../quaternionFilters.c" \

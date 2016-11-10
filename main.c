@@ -55,23 +55,12 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 	//transmit mode seems to handle what we need think it resets the bit we need
 
 	init_clock();
-	//TODO: remove from code, testing clocks
-//	MAP_GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0);
-////	MAP_GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN0);
-//	MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN0);
-//	while(1){
-//
-//	}
 
 	init_i2c(); //could possibily pull this into the mpu function set in order to abstract some functions away
 	init_uart();
 
 	mpu9250 my_MPU;
 	init_struct(&my_MPU);
-
-
-
-
 
 	uint8_t who_is_it = read_i2c(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
 	if(who_is_it != 0x71){ //if who am i doesn't return 71, program exits
@@ -88,13 +77,16 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 //				GPIO_PIN4, GPIO_PRIMARY_MODULE_FUNCTION);
 //	MAP_Timer_A_initCapture(TIMER_A0_BASE, &captureModeConfig);
 	/* Configuring Continuous Mode */
+
 	MAP_Timer_A_configureContinuousMode(TIMER_A0_BASE, &continuousModeConfig);
 //	MAP_Interrupt_enableInterrupt(INT_TA0_N);
 //	MAP_Interrupt_enableMaster();
 	//init_TimerA();
 	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
 	init_PWM_timers(); //sets up timers for PWM output for motors
+
 	while(1){
+
 		//updating MPU values and setting pitch angle
 		setAccelData(&my_MPU);
 		setGyroData(&my_MPU);
@@ -110,19 +102,12 @@ int main(void){ //changing to int main function to break if who_am_i doens't ret
 	    my_MPU.sumCount = 0;
 	    my_MPU.sum = 0;
 
-//	    move_forward(30);
-
 
 	    int pitch = my_MPU.pitch + 5;
 
-	    if(pitch > 0){
-//	    	tx_data("fuck");
-	    }
-	    else{
-//	    	tx_data("shit");
-	    }
-	    pid_0(pitch);
+//	    pid_0(pitch);
 //	    move_forward(50);
+
 	    //outputting current pitch via UART
 	    my_itoa(pitch);
 	}
@@ -212,22 +197,7 @@ void init_clock(){
 }
 
 void my_itoa(int value){
-//	int speed;
-//	if(rising_VAL > falling_VAL){
-//		speed = rising_VAL - falling_VAL;
-//	}
-//	else{
-//		speed = falling_VAL - rising_VAL;
-//	}
-//	char s[5];
-//	s[0] = (speed/1000) + 0x30;
-//	speed = speed - (speed/10)*10;
-//	s[1] = (speed/100) + 0x30;
-//	speed = speed - (speed/10)*10;
-//	s[2] = (speed/10) + 0x30;
-//	speed = speed - (speed/10)*10;
-//	s[3] = speed + 0x30;
-//	tx_data(s);
+
 	int temp = value;
 	char c[3];
 	if(value < 0){
@@ -248,7 +218,7 @@ void my_itoa(int value){
 		tx_data(c);
 	}
 	if(value > 100){
-		tx_data("shits_fucked");
+		tx_data("> 100");
 	}
 
 }

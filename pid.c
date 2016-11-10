@@ -7,10 +7,9 @@
 
 #include "pid.h"
 
-const float Kp = 0;
 
 void PID_finally(int setpoint_pitch, int pitch){
 	int error = setpoint_pitch - pitch;
-	int p_term = Kp*error;
+	int p_term = error;
 
 }
