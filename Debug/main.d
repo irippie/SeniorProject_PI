@@ -1,6 +1,7 @@
 # FIXED
 
 main.obj: ../main.c
+main.obj: ../main.h
 main.obj: C:/ti/msp/MSP432Ware_3_50_00_02/driverlib/driverlib/MSP432P4xx/driverlib.h
 main.obj: C:/ti/msp/MSP432Ware_3_50_00_02/driverlib/driverlib/MSP432P4xx/adc14.h
 main.obj: C:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS/include/stdint.h
@@ -51,10 +52,10 @@ main.obj: C:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS/include/_defs.h
 main.obj: ../i2c.h
 main.obj: ../motor_driver.h
 main.obj: ../msp_uart.h
-main.obj: ../pid.h
 main.obj: ../mpu9250.h
 
 ../main.c: 
+../main.h: 
 C:/ti/msp/MSP432Ware_3_50_00_02/driverlib/driverlib/MSP432P4xx/driverlib.h: 
 C:/ti/msp/MSP432Ware_3_50_00_02/driverlib/driverlib/MSP432P4xx/adc14.h: 
 C:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS/include/stdint.h: 
@@ -105,5 +106,4 @@ C:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS/include/_defs.h:
 ../i2c.h: 
 ../motor_driver.h: 
 ../msp_uart.h: 
-../pid.h: 
 ../mpu9250.h: 

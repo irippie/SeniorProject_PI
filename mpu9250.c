@@ -9,6 +9,7 @@
  * All functionality done in original library is not guaranteed unless I need
  * it.
 */
+
 #include "driverlib.h"
 #include <stdint.h>
 #include "mpu9250.h"
@@ -16,10 +17,7 @@
 #include "quaternionFilters.h"
 #include <math.h>
 
-
-
 void init_struct(mpu9250 * in){	
-	// memset(&in, 0, sizeof(in));
 	in->Gscale = GFS_250DPS;
 	in->Ascale = AFS_2G;
 	in->Mscale = MFS_16BITS;
@@ -29,8 +27,6 @@ void init_struct(mpu9250 * in){
 
 void getMres(mpu9250 * foo){
 	switch(foo->Mscale){
-  	// Possible magnetometer scales (and their register bit settings) are:
-  	// 14 bit resolution (0) and 16 bit resolution (1)
 	    case MFS_14BITS:
 			foo->mRes = 10.*4912./8190.; // Proper scale to return milliGauss
 	        break;
@@ -41,9 +37,6 @@ void getMres(mpu9250 * foo){
 }
 void getGres(mpu9250 *foo){
 	switch (foo->Gscale){
-  // Possible gyro scales (and their register bit settings) are:
-  // 250 DPS (00), 500 DPS (01), 1000 DPS (10), and 2000 DPS  (11).
-  // Here's a bit of an algorith to calculate DPS/(ADC tick) based on that 2-bit value:
 		case GFS_250DPS:
 			  foo->gRes = 250.0/32768.0;
 			  break;
@@ -58,11 +51,9 @@ void getGres(mpu9250 *foo){
 			  break;
 	}
 }
+
 void getAres(mpu9250 *foo){
 	switch (foo->Ascale){
-  // Possible accelerometer scales (and their register bit settings) are:
-  // 2 Gs (00), 4 Gs (01), 8 Gs (10), and 16 Gs  (11).
-        // Here's a bit of an algorith to calculate DPS/(ADC tick) based on that 2-bit value:
     case AFS_2G:
           foo->aRes = 2.0/32768.0;
           break;
@@ -77,30 +68,23 @@ void getAres(mpu9250 *foo){
           break;
   }
 }
+
 void readAccelData(int16_t * destination){
 	uint8_t rawData[6];
-	uint8_t tempZH, tempZL;
 	read_multibyte_i2c(MPU9250_ADDRESS, ACCEL_XOUT_H, 6, rawData);
-	int16_t temp[3];
-	temp[0] = ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a signed 16-bit value
-	temp[1] = ((int16_t)rawData[2] << 8) | rawData[3] ;
-	temp[2] = ((int16_t)rawData[4] << 8) | rawData[5] ;
-	tempZH = read_i2c(MPU9250_ADDRESS, ACCEL_ZOUT_H);
-	tempZL = read_i2c(MPU9250_ADDRESS, ACCEL_ZOUT_L);
 	destination[0] = ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a signed 16-bit value
 	destination[1] = ((int16_t)rawData[2] << 8) | rawData[3] ;
 	destination[2] = ((int16_t)rawData[4] << 8) | rawData[5] ;
 }
+
 void setAccelData(mpu9250 *foo){
 	getAres(foo);
-//	int16_t accelData[3];
 	readAccelData(foo->accelCount);
-//	int i;
-//	for(i = 0; i < 3; i++) foo->accelCount[i] = accelData[i];
 	foo->ax = (float)foo->accelCount[0]*foo->aRes;
 	foo->ay = (float)foo->accelCount[1]*foo->aRes;
 	foo->az = (float)foo->accelCount[2]*foo->aRes;
 }
+
 void readGyroData(int16_t * destination){
 	uint8_t rawData[6];
 	read_multibyte_i2c(MPU9250_ADDRESS, GYRO_XOUT_H, 6, rawData);
@@ -108,50 +92,31 @@ void readGyroData(int16_t * destination){
 	destination[1] = ((int16_t)rawData[2] << 8) | rawData[3] ;
 	destination[2] = ((int16_t)rawData[4] << 8) | rawData[5] ;
 }
+
 void setGyroData(mpu9250 *foo){
-//	int16_t gyroData[3];
 	getGres(foo);
 	readGyroData(foo->gyroCount);
-//	int i;
-//	for(i = 0; i < 3; i++) foo->gyroCount[i] = gyroData[i];
 	foo->gx = (float)foo->gyroCount[0]*foo->gRes;
 	foo->gy = (float)foo->gyroCount[1]*foo->gRes;
 	foo->gz = (float)foo->gyroCount[2]*foo->gRes;
 }
+
 void readMagData(int16_t *destination){
 	uint8_t rawData[7];
-	//read_multibyte_i2c()
-
 	read_multibyte_i2c(AK8963_ADDRESS, AK8963_XOUT_L, 7, rawData);
-
-
-	// Turn the MSB and LSB into a signed 16-bit value
 	destination[0] = ((int16_t)rawData[1] << 8) | rawData[0];
-	// Data stored as little Endian
 	destination[1] = ((int16_t)rawData[3] << 8) | rawData[2];
 	destination[2] = ((int16_t)rawData[5] << 8) | rawData[4];
-
 }
+
 void setMagData(mpu9250 *foo){
 	getMres(foo);
-//	readMagData(foo->magCount);
-//	foo->mx = (float)foo->magCount[0]*foo->mRes;
-//	foo->my = (float)foo->magCount[1]*foo->mRes;
-//	foo->mz = (float)foo->magCount[2]*foo->mRes;
 	foo->mx = -470.;
 	foo->my = -120.;
 	foo->mz = -125.;
 }
 
-// My offsets were hardcoded after realizing that in the arduino port, the offsets
-// were being written to by either the self test function or calibration functions.
-// I read the values multiple times and saw they were not changing much and decided that
-// it was a simpler solution to just hardcode in the offsest values. My pitch angle was pretty much perfect
-// all things considered.
-
 void init_offsets(void){
-
-	// TODO: move this into i2c header file to initialize offsets
 	write_i2c(MPU9250_ADDRESS, ZA_OFFSET_H, 36);
 	write_i2c(MPU9250_ADDRESS, ZA_OFFSET_L, 221);
 	write_i2c(MPU9250_ADDRESS, XA_OFFSET_H, 21);
@@ -160,9 +125,11 @@ void init_offsets(void){
 	write_i2c(MPU9250_ADDRESS, YA_OFFSET_L, 114);
 }
 
+
 void updateTime(mpu9250* foo){
 	uint16_t current_time = TA0R;
 	foo->Now = current_time;
+
 	if(foo->Now < foo->lastUpdate){ //overflow happened
 		foo->lastUpdate = 0xFFFF - foo->lastUpdate;
 		foo->deltat = ((foo->Now + foo->lastUpdate) / 1000000.0f);
@@ -170,6 +137,7 @@ void updateTime(mpu9250* foo){
 	else{
 		foo->deltat = ((foo->Now - foo->lastUpdate) / 1000000.0f);
 	}
+
 	foo->lastUpdate = foo->Now;
 	foo->sum += foo->deltat;
 	foo->sumCount++;

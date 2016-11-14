@@ -1,144 +1,30 @@
-#include "driverlib.h"
-#include <stdint.h>
-#include <stdlib.h>
-#include "quaternionFilters.h"
-#include <math.h>
-#include "i2c.h"
-#include "motor_driver.h"
-#include "msp_uart.h"
-#include "pid.h"
+#include "main.h"
 
-#include "mpu9250.h"
-
-#define Kp_motor 13.0 //13.0
+#define Kp_motor 13.0
 #define Ki_motor 0.8
 #define Kd_motor 1.0
 
-#define pitch_offset 3
-/////////////////////////////////////////////////////////////////////
-// @brief initliazes clock to 24 MHz
-/////////////////////////////////////////////////////////////////////
-void init_clock();
-/////////////////////////////////////////////////////////////////////
-// @brief sends out pitch data via UART
-// @param1 float pitch angle casted to int (-90, 90)
-/////////////////////////////////////////////////////////////////////
-void my_itoa(int);
-
-const Timer_A_ContinuousModeConfig continuousModeConfig =
-{
-        TIMER_A_CLOCKSOURCE_SMCLK,           // SMCLK Clock Source
-        TIMER_A_CLOCKSOURCE_DIVIDER_24,       // SMCLK = 24 MHz/24 = 1MHz
-        TIMER_A_TAIE_INTERRUPT_DISABLE,      // Disable Timer ISR
-        TIMER_A_SKIP_CLEAR                   // Skup Clear Counter
-};
-
-const Timer_A_CaptureModeConfig captureModeConfig =
-{
-        TIMER_A_CAPTURECOMPARE_REGISTER_1,        // CC Register 1
-        TIMER_A_CAPTUREMODE_RISING_AND_FALLING_EDGE,          // Rising Edge
-        TIMER_A_CAPTURE_INPUTSELECT_CCIxA,        // CCIxA Input Select
-        TIMER_A_CAPTURE_SYNCHRONOUS,              // Synchronized Capture
-        TIMER_A_CAPTURECOMPARE_INTERRUPT_ENABLE,  // Enable interrupt
-        TIMER_A_OUTPUTMODE_OUTBITVALUE            // Output bit value
-};
-
 float i_term;
+float last_error = 0;
 
-
-
-int main(void){ //changing to int main function to break if who_am_i doens't return valid value
-
+int main(void){
 	/*TODO: Need to toggle pins here, sometimes SDA being pulled low on restart*/
-	//above could be occuring because of timing issue seen at 400 kbps?
-	//timing issues occur at 400 kbps but not 100 kbps
-	//transmit mode seems to handle what we need think it resets the bit we need
 
-	init_clock();
-
-	init_i2c(); //could possibily pull this into the mpu function set in order to abstract some functions away
-	init_uart();
-
-	mpu9250 my_MPU;
-	init_struct(&my_MPU);
-
-	uint8_t who_is_it = read_i2c(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
-	if(who_is_it != 0x71){ //if who am i doesn't return 71, program exits
+	mpu9250 imu;
+	if(!init_all(&imu))
 		return 0;
-	}
+	stabilize_imu(&imu);
 
-
-	//following 3 lines are for input capture for enconders
-	//TODO: need to do input capture for 2.5
-	//currently only using 2.4 to ensure works
-
-//	init_encoder_capture();
-//	MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P2,
-//				GPIO_PIN4, GPIO_PRIMARY_MODULE_FUNCTION);
-//	MAP_Timer_A_initCapture(TIMER_A0_BASE, &captureModeConfig);
-	/* Configuring Continuous Mode */
-
-	MAP_Timer_A_configureContinuousMode(TIMER_A0_BASE, &continuousModeConfig);
-
-
-//	MAP_Interrupt_enableInterrupt(INT_TA0_N);
-//	MAP_Interrupt_enableMaster();
-	//init_TimerA();
-
-
-	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
-
-
-	init_PWM_timers(); //sets up timers for PWM output for motors
-
-	int i;
-	for(i = 0; i < 1000; i++){
-
-		setAccelData(&my_MPU);
-		setGyroData(&my_MPU);
-		setMagData(&my_MPU);
-		updateTime(&my_MPU);
-		MadgwickQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx*DEG_TO_RAD,
-									 my_MPU.gy*DEG_TO_RAD, my_MPU.gz*DEG_TO_RAD, my_MPU.my,
-									 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
-		my_MPU.pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ() *
-							*(getQ()+2)));
-
-		my_MPU.pitch = (my_MPU.pitch*RAD_TO_DEG);
-		my_MPU.sumCount = 0;
-		my_MPU.sum = 0;
-
-	}
-
+	int pitch;
 	while(1){
+		pitch = get_pitch(&imu) + 1;
 
-		//updating MPU values and setting pitch angle
-		setAccelData(&my_MPU);
-		setGyroData(&my_MPU);
-		setMagData(&my_MPU);
-		updateTime(&my_MPU);
-		MadgwickQuaternionUpdate(my_MPU.ax, my_MPU.ay, my_MPU.az, my_MPU.gx*DEG_TO_RAD,
-									 my_MPU.gy*DEG_TO_RAD, my_MPU.gz*DEG_TO_RAD, my_MPU.my,
-									 my_MPU.mx,	my_MPU.mz, my_MPU.deltat);
-		my_MPU.pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ() *
-		                    *(getQ()+2)));
+//	    pid_0(pitch);
 
-	    my_MPU.pitch = (my_MPU.pitch*RAD_TO_DEG);
-	    my_MPU.sumCount = 0;
-	    my_MPU.sum = 0;
-
-
-	    int pitch = my_MPU.pitch + 2;
-
-
-	    pid_0(pitch);
-
-	    //outputting current pitch via UART
 	    my_itoa(pitch);
 	}
 }
 
-float last_error = 0;
 void pid_0(int pitch){
 
 	float error = 0 - pitch;
@@ -230,20 +116,60 @@ void my_itoa(int value){
 	if(value > 100){
 		tx_data("> 100");
 	}
-
 }
 
-void TA0_N_IRQHandler(void){
-	MAP_Timer_A_clearInterruptFlag(TIMER_A0_BASE);
-	MAP_Timer_A_clearCaptureCompareInterrupt(TIMER_A0_BASE,
-	            TIMER_A_CAPTURECOMPARE_REGISTER_1);
-	uint8_t pin_value = P2IN & 0x10;
-	if(pin_value != 0){
-		rising_VAL =  MAP_Timer_A_getCaptureCompareCount(TIMER_A0_BASE,
-									TIMER_A_CAPTURECOMPARE_REGISTER_1);
-	}
-	else{
-		falling_VAL =  MAP_Timer_A_getCaptureCompareCount(TIMER_A0_BASE,
-											TIMER_A_CAPTURECOMPARE_REGISTER_1);
+void stabilize_imu(mpu9250* imu){
+	int i;
+	for(i = 0; i < 1000; i++){
+		setAccelData(imu);
+		setGyroData(imu);
+		setMagData(imu);
+		updateTime(imu);
+		MadgwickQuaternionUpdate(imu->ax, imu->ay, imu->az, imu->gx*DEG_TO_RAD,
+									 imu->gy*DEG_TO_RAD, imu->gz*DEG_TO_RAD, imu->my,
+									 imu->mx,	imu->mz, imu->deltat);
+		imu->pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ() * *(getQ()+2)));
+		imu->pitch = (imu->pitch*RAD_TO_DEG);
+		imu->sumCount = 0;
+		imu->sum = 0;
 	}
 }
+
+int get_pitch(mpu9250* imu){
+	setAccelData(imu);
+	setGyroData(imu);
+	setMagData(imu);
+	updateTime(imu);
+	MadgwickQuaternionUpdate(imu->ax, imu->ay, imu->az, imu->gx*DEG_TO_RAD,
+								 imu->gy*DEG_TO_RAD, imu->gz*DEG_TO_RAD, imu->my,
+								 imu->mx,	imu->mz, imu->deltat);
+	imu->pitch = -asin(2.0f * (*(getQ()+1) * *(getQ()+3) - *getQ() * *(getQ()+2)));
+	imu->pitch = (imu->pitch*RAD_TO_DEG);
+	imu->sumCount = 0;
+	imu->sum = 0;
+	return imu->pitch;
+}
+
+int init_all(mpu9250* imu){
+
+	init_clock();
+	init_i2c();
+	init_uart();
+
+	init_struct(imu);
+	uint8_t who_is_it = read_i2c(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
+	if(who_is_it != 0x71)
+		return 0;
+
+	/* PID timer */
+	MAP_Timer_A_configureContinuousMode(TIMER_A0_BASE, &continuousModeConfig);
+	MAP_Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_CONTINUOUS_MODE);
+
+	/* PWM timer for motors */
+	init_PWM_timers();
+
+	return 1;
+}
+
+
+
