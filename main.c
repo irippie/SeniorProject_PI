@@ -13,16 +13,20 @@ int main(void){
 	mpu9250 imu;
 	if(!init_all(&imu))
 		return 0;
-	stabilize_imu(&imu);
-
-	int pitch;
-	while(1){
-		pitch = get_pitch(&imu) + 1;
-
-//	    pid_0(pitch);
-
-	    my_itoa(pitch);
-	}
+//	stabilize_imu(&imu);
+//
+//	int pitch;
+//	move_forward(35);
+	MAP_GPIO_setAsOutputPin(GPIO_PORT_P6, GPIO_PIN0);
+	MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN0);
+	while(1){}
+//	while(1){
+//		pitch = get_pitch(&imu) + 1;
+//
+////	    pid_0(pitch);
+//
+//	    my_itoa(pitch);
+//	}
 }
 
 void pid_0(int pitch){
@@ -41,6 +45,7 @@ void pid_0(int pitch){
 		p_term = -100;
 	}
 	float d_term = error - last_error;
+	last_error = error;
 	d_term = Kd_motor*d_term;
 	if(d_term > 100){
 		d_term = 100;

@@ -35,6 +35,7 @@ void getMres(mpu9250 * foo){
 	          break;
 	}
 }
+
 void getGres(mpu9250 *foo){
 	switch (foo->Gscale){
 		case GFS_250DPS:
@@ -142,17 +143,6 @@ void updateTime(mpu9250* foo){
 	foo->sum += foo->deltat;
 	foo->sumCount++;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
