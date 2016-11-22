@@ -1,8 +1,8 @@
 #include "main.h"
 
-float kp = 32.5; //31.5
-float ki = 1.0;//.08
-float kd = 700;
+float kp = 28; 		// 32.5
+float ki = 0.775;	// 0.7
+float kd = 700;		// 700
 //float *kptr = &kp;
 float i_term;
 float d_term;
@@ -50,7 +50,6 @@ float last_error = 0;
 		pitch = get_pitch(&imu);
 
 		pid(pitch);
-
 
 	    my_itoa(pitch);
 	}
