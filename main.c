@@ -1,62 +1,89 @@
 #include "main.h"
 
-#define Kp_motor 13.0
-#define Ki_motor 0.8
-#define Kd_motor 1.0
-
+float kp = 32.5; //31.5
+float ki = 1.0;//.08
+float kd = 700;
+//float *kptr = &kp;
 float i_term;
+float d_term;
 float last_error = 0;
 
-int main(void){
+ int main(void){
 	/*TODO: Need to toggle pins here, sometimes SDA being pulled low on restart*/
+
+	MAP_GPIO_setAsOutputPin(GPIO_PORT_P6, GPIO_PIN0);
+	MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN0);
 
 	mpu9250 imu;
 	if(!init_all(&imu))
 		return 0;
-//	stabilize_imu(&imu);
-//
-//	int pitch;
-//	move_forward(35);
-	MAP_GPIO_setAsOutputPin(GPIO_PORT_P6, GPIO_PIN0);
-	MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN0);
-	while(1){}
-//	while(1){
-//		pitch = get_pitch(&imu) + 1;
-//
-////	    pid_0(pitch);
-//
-//	    my_itoa(pitch);
-//	}
+	stabilize_imu(&imu);
+
+
+	float pitch;
+//	uint8_t command;
+
+	while(1){
+
+//		command = rx_data();
+//		switch(command){
+//			case 'p':
+//				kptr = &kp;
+//				tx_data("kp");
+//				break;
+//			case 'i':
+//				kptr = &ki;
+//				tx_data("ki");
+//				break;
+//			case 'd':
+//				kptr = &kd;
+//				tx_data("kd");
+//				break;
+//			case '+':
+//				*kptr += 0.01;
+//				break;
+//			case '-':
+//				*kptr -= 0.01;
+//				break;
+//		}
+
+		pitch = get_pitch(&imu);
+
+		pid(pitch);
+
+
+	    my_itoa(pitch);
+	}
 }
 
-void pid_0(int pitch){
+void pid(float pitch){
 
 	float error = 0 - pitch;
-	float p_term = Kp_motor*error;
-	i_term += Ki_motor*(float)error;
+	float p_term = kp * error;
+	i_term += ki*error;
+
 	if(i_term > 100)
 		i_term = 100;
 	else if(i_term < -100)
 		i_term = -100;
-	if(p_term > 100){
+
+	if(p_term > 100)
 		p_term = 100;
-	}
-	else if(p_term < -100){
+	else if(p_term < -100)
 		p_term = -100;
-	}
-	float d_term = error - last_error;
+
+	d_term = error - last_error;
 	last_error = error;
-	d_term = Kd_motor*d_term;
-	if(d_term > 100){
+	d_term = kd * d_term;
+
+	if(d_term > 100)
 		d_term = 100;
-	}
-	else if(d_term < -100){
+	else if(d_term < -100)
 		d_term = -100;
-	}
 
-
-	float output = (float)p_term + i_term + d_term;
+	float output = p_term + i_term + d_term;
 	int motor_set = (int)output;
+
 	if(motor_set < 0){
 		if(motor_set < -100){
 			motor_set = 100;
@@ -64,13 +91,13 @@ void pid_0(int pitch){
 		else{
 			motor_set *= -1;
 		}
-		move_reverse(motor_set);
+		move_forward(motor_set);
 	}
 	else{
 		if(motor_set > 100){
 			motor_set = 100;
 		}
-		move_forward(motor_set);
+		move_reverse(motor_set);
 	}
 
 }

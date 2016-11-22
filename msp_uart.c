@@ -42,6 +42,10 @@ void tx_data(const char* data){
 
 }
 
+uint8_t rx_data(){
+	return MAP_UART_receiveData(EUSCI_A2_BASE);
+}
+
 void init_uart(){
 
 	/* used for msp to terminal comm */

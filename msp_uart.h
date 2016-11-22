@@ -14,6 +14,7 @@
  */
 
 void tx_data(const char*);
+uint8_t rx_data();
 
 // @brief initializes UART
 

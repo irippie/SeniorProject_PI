@@ -69,6 +69,9 @@ void move_forward(uint8_t duty_cycle){
 
 void move_reverse(uint8_t duty_cycle){
 
+//	if(duty_cycle < 98)
+//		duty_cycle += 2;
+
 	TA1CCR1 = TIMER_PERIOD;
 	TA1CCR2 = speed_calc(duty_cycle);
 	TA1CCR3 = TIMER_PERIOD;

@@ -23,6 +23,7 @@ void init_clock();
 void stabilize_imu(mpu9250*);
 int get_pitch(mpu9250*);
 void my_itoa(int);
+void pid(float);
 
 const Timer_A_ContinuousModeConfig continuousModeConfig =
 {
