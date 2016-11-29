@@ -1,8 +1,9 @@
 #include "main.h"
 
-float kp = 27; 		// 32.5
-float ki = 0.65;	// 0.7
-float kd = 2000;		// 700
+#define offset 0.1f
+float kp = 26; 		// 32.5
+float ki = 0.7;	// 0.9
+float kd = 7500;		// 7500
 //float *kptr = &kp;
 float i_term;
 float d_term;
@@ -47,7 +48,7 @@ float last_error = 0;
 //				break;
 //		}
 
-		pitch = get_pitch(&imu);
+		pitch = get_pitch(&imu) + offset;
 
 //		if(pitch < 0.1 || pitch > 0.1)
 			pid(pitch);
