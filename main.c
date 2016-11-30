@@ -1,16 +1,15 @@
 #include "main.h"
 
-float kp = 32.5; 		// 32.5
-float ki = 0.9;		// 0.9
-float kd = 500;		// 7500
-float* kptr = &kp;
+float kp = 35; 		// 32.5
+float ki = 0.5;		// 0.9
+float kd = 450;		// 7500
 float i_term;
 float d_term;
 float last_error = 0;
 float setpoint = 0;
+char direction = 'r';
 
 int main(void){
-	/*TODO: Need to toggle pins here, sometimes SDA being pulled low on restart*/
 
 	MAP_GPIO_setAsOutputPin(GPIO_PORT_P6, GPIO_PIN0);
 	MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN0);
@@ -19,7 +18,6 @@ int main(void){
 	if(!init_all(&imu))
 		return 0;
 	stabilize_imu(&imu);
-
 
 	float pitch;
 	char rx_data;
@@ -32,50 +30,30 @@ int main(void){
 		if(status & EUSCI_A_UART_RECEIVE_INTERRUPT_FLAG)
 		{
 			rx_data = MAP_UART_receiveData(EUSCI_A2_BASE);
-			char *test = &rx_data;
+			tx_char(rx_data);
 		}
 
 		switch(rx_data){
-			case 'p':
-				kptr = &kp;
-				tx_data("kp = ");
-				my_itoa(kp);
+			case 'w':
+				setpoint = 0.87;
+				direction = 'w';
 				break;
-			case 'i':
-				kptr = &ki;
-				tx_data("ki = ");
-				my_itoa(ki);
+			case 's':
+				setpoint = -0.9;
+				direction = 's';
+				break;
+			case 'a':
+				setpoint = 0;
+				direction = 'a';
 				break;
 			case 'd':
-				kptr = &kd;
-				tx_data("kd = ");
-				my_itoa(kd);
+				setpoint = 0;
+				direction = 'd';
 				break;
-			case '8':
-				*kptr += 1.0;
-				rx_data = 'x';
+			case 'r':
+				setpoint = 0;
+				direction = 'r';
 				break;
-			case '7':
-				*kptr -= 1.0;
-				rx_data = 'x';
-				break;
-			case '5':
-				*kptr += 0.1;
-				rx_data = 'x';
-				break;
-			case '4':
-				*kptr -= 0.1;
-				rx_data = 'x';
-				break;
-			case '2':
-				*kptr += 0.01;
-				rx_data = 'x';
-				break;
-			case '1':
-				*kptr -= 0.01;
-				rx_data = 'x';
-				break;
-
 		}
 
 		pitch = get_pitch(&imu);
@@ -116,13 +94,13 @@ void pid(float pitch){
 		motor_set *= -1;
 		if(motor_set > 100)
 			motor_set = 100;
-		move_forward(motor_set);
+		move_forward(motor_set, direction);
 	}
 	else if(motor_set > 0){
 		if(motor_set > 100){
 			motor_set = 100;
 		}
-		move_reverse(motor_set);
+		move_reverse(motor_set, direction);
 	}
 
 }

@@ -59,14 +59,29 @@ const Timer_A_CompareModeConfig compareConfig_PWM4 =
 };
 /* For now, direction will be 1 == foward, 0 == reverse */
 // created defines for direction
-void move_forward(uint8_t duty_cycle){
-	TA1CCR1 = speed_calc(duty_cycle);
-	TA1CCR2 = TIMER_PERIOD;
-	TA1CCR3 = speed_calc(duty_cycle);
-	TA1CCR4 = TIMER_PERIOD;
+// 1 and 2 left motor
+void move_forward(uint8_t duty_cycle, char direction){
+	if(direction == 'a'){
+		TA1CCR1 = speed_calc(duty_cycle/2);
+		TA1CCR2 = TIMER_PERIOD;
+		TA1CCR3 = speed_calc(duty_cycle);
+		TA1CCR4 = TIMER_PERIOD;
+	}
+	else if(direction == 'd'){
+		TA1CCR1 = speed_calc(duty_cycle);
+		TA1CCR2 = TIMER_PERIOD;
+		TA1CCR3 = speed_calc(duty_cycle/2);
+		TA1CCR4 = TIMER_PERIOD;
+	}
+	else{
+		TA1CCR1 = speed_calc(duty_cycle);
+		TA1CCR2 = TIMER_PERIOD;
+		TA1CCR3 = speed_calc(duty_cycle);
+		TA1CCR4 = TIMER_PERIOD;
+	}
 }
 
-void move_reverse(uint8_t duty_cycle){
+void move_reverse(uint8_t duty_cycle, char direction){
 	TA1CCR1 = TIMER_PERIOD;
 	TA1CCR2 = speed_calc(duty_cycle);
 	TA1CCR3 = TIMER_PERIOD;
