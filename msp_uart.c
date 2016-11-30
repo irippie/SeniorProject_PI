@@ -27,7 +27,7 @@ void tx_data(const char* data){
 
 	//transmitting each character of the screen via uart_a0
 	int i;
-	for(i = 0; i < 3; i++){
+	for(i = 0; i < strlen(data); i++){
 		MAP_UART_transmitData(EUSCI_A2_BASE, data[i]);
 	}
 
@@ -37,13 +37,13 @@ void tx_data(const char* data){
 //	MAP_UART_transmitData(EUSCI_A0_BASE, 0xD);
 
 	// BT UART
-	MAP_UART_transmitData(EUSCI_A2_BASE, 0xA);
-	MAP_UART_transmitData(EUSCI_A2_BASE, 0xD);
+//	MAP_UART_transmitData(EUSCI_A2_BASE, 0xA);
+//	MAP_UART_transmitData(EUSCI_A2_BASE, 0xD);
 
 }
 
-uint8_t rx_data(){
-	return MAP_UART_receiveData(EUSCI_A2_BASE);
+void tx_char(char data){
+	MAP_UART_transmitData(EUSCI_A2_BASE, data);
 }
 
 void init_uart(){
@@ -62,6 +62,8 @@ void init_uart(){
 			GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
 
 	MAP_UART_initModule(EUSCI_A2_BASE, &uartConfig);
+
 	MAP_UART_enableModule(EUSCI_A2_BASE);
+	MAP_UART_enableInterrupt(EUSCI_A2_BASE, EUSCI_A_UART_RECEIVE_INTERRUPT);
 
 }

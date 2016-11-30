@@ -1,15 +1,15 @@
 #include "main.h"
 
-#define offset 0.1f
-float kp = 26; 		// 32.5
-float ki = 0.7;	// 0.9
-float kd = 7500;		// 7500
-//float *kptr = &kp;
+float kp = 32.5; 		// 32.5
+float ki = 0.9;		// 0.9
+float kd = 500;		// 7500
+float* kptr = &kp;
 float i_term;
 float d_term;
 float last_error = 0;
+float setpoint = 0;
 
- int main(void){
+int main(void){
 	/*TODO: Need to toggle pins here, sometimes SDA being pulled low on restart*/
 
 	MAP_GPIO_setAsOutputPin(GPIO_PORT_P6, GPIO_PIN0);
@@ -22,48 +22,71 @@ float last_error = 0;
 
 
 	float pitch;
-//	uint8_t command;
+	char rx_data;
+	uint32_t status;
 
 	while(1){
+		status = MAP_UART_getEnabledInterruptStatus(EUSCI_A2_BASE);
+		MAP_UART_clearInterruptFlag(EUSCI_A2_BASE, status);
 
-//		command = rx_data();
-//		switch(command){
-//			case 'p':
-//				kptr = &kp;
-//				tx_data("kp");
-//				break;
-//			case 'i':
-//				kptr = &ki;
-//				tx_data("ki");
-//				break;
-//			case 'd':
-//				kptr = &kd;
-//				tx_data("kd");
-//				break;
-//			case '+':
-//				*kptr += 0.01;
-//				break;
-//			case '-':
-//				*kptr -= 0.01;
-//				break;
-//		}
+		if(status & EUSCI_A_UART_RECEIVE_INTERRUPT_FLAG)
+		{
+			rx_data = MAP_UART_receiveData(EUSCI_A2_BASE);
+			char *test = &rx_data;
+		}
 
-		pitch = get_pitch(&imu) + offset;
+		switch(rx_data){
+			case 'p':
+				kptr = &kp;
+				tx_data("kp = ");
+				my_itoa(kp);
+				break;
+			case 'i':
+				kptr = &ki;
+				tx_data("ki = ");
+				my_itoa(ki);
+				break;
+			case 'd':
+				kptr = &kd;
+				tx_data("kd = ");
+				my_itoa(kd);
+				break;
+			case '8':
+				*kptr += 1.0;
+				rx_data = 'x';
+				break;
+			case '7':
+				*kptr -= 1.0;
+				rx_data = 'x';
+				break;
+			case '5':
+				*kptr += 0.1;
+				rx_data = 'x';
+				break;
+			case '4':
+				*kptr -= 0.1;
+				rx_data = 'x';
+				break;
+			case '2':
+				*kptr += 0.01;
+				rx_data = 'x';
+				break;
+			case '1':
+				*kptr -= 0.01;
+				rx_data = 'x';
+				break;
 
-//		if(pitch < 0.1 || pitch > 0.1)
-			pid(pitch);
-//		else{
-//			i_term = 0;
-//			stop_motors();
-//		}
+		}
 
-	    my_itoa(pitch);
+		pitch = get_pitch(&imu);
+		pid(pitch);
 	}
+
 }
 
 void pid(float pitch){
 
-	float error = 0 - pitch;
+	float error = setpoint - pitch;
 	float p_term = kp * error;
 	i_term += ki*error;
 
@@ -90,15 +113,12 @@ void pid(float pitch){
 	int motor_set = (int)output;
 
 	if(motor_set < 0){
-		if(motor_set < -100){
+		motor_set *= -1;
+		if(motor_set > 100)
 			motor_set = 100;
-		}
-		else{
-			motor_set *= -1;
-		}
 		move_forward(motor_set);
 	}
-	else{
+	else if(motor_set > 0){
 		if(motor_set > 100){
 			motor_set = 100;
 		}
@@ -129,30 +149,26 @@ void init_clock(){
 
 }
 
-void my_itoa(int value){
+void my_itoa(float value){
 
-	int temp = value;
-	char c[3];
-	if(value < 0){
-		c[0] = '-';
-		temp = -temp;
-	}
-	else{
-		c[0] = '+';
-	}
-	c[1] = (temp/10) + 0x30;
-	temp = temp - (temp/10)*10;
-	c[2] = temp + 0x30;
+	float temp = value;
+	char c[4];
 
-	if(value > 0){
-		tx_data(c);
-	}
-	else{
-		tx_data(c);
-	}
-	if(value > 100){
-		tx_data("> 100");
-	}
+	c[3] = (int)(temp/10) + 0x30; 			// tens
+	temp = temp - (int)(temp/10)*10;		// ones
+	c[2] = (int)temp + 0x30;
+	temp = (temp - (int)(temp))*10;			// tenth
+	c[1] = (int)temp + 0x30;
+	temp = ((temp - (int)temp))*10;
+	c[0] = (int)temp + 0x30;				// hundredth
+
+	tx_char(c[3]);
+	tx_char(c[2]);
+	tx_char('.');
+	tx_char(c[1]);
+	tx_char(c[0]);
+	tx_char('\r');
+
 }
 
 void stabilize_imu(mpu9250* imu){
@@ -172,7 +188,7 @@ void stabilize_imu(mpu9250* imu){
 	}
 }
 
-int get_pitch(mpu9250* imu){
+float get_pitch(mpu9250* imu){
 	setAccelData(imu);
 	setGyroData(imu);
 	setMagData(imu);

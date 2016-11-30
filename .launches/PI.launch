@@ -6,7 +6,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.Texas Instruments XDS110 USB Debug Probe/CORTEX_M4_0" value="PI"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:PI}"/>
 <mapAttribute key="com.ti.ccstudio.debug.ui.displayFormats">
-<mapEntry key="Texas Instruments XDS110 USB Debug Probe/CORTEX_M4_0@##separator##@0" value="32-Bit Hex - TI Style"/>
+<mapEntry key="Texas Instruments XDS110 USB Debug Probe/CORTEX_M4_0@##separator##@0" value="32-Bit Floating Point"/>
 </mapAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/PI"/>
